@@ -1,131 +1,192 @@
-# Private Network Service Platform — Team Error-101 (`team1.test`)
+# Private Network Service Platform
 
-B.Tech Computer Networks course project: a private service on a local LAN built from three MacBooks —
-**private DNS → TCP → TLS → nginx edge (load balancing + caching) → two REST backends** — then hardened in Phase 2 with a
-backup DNS server, TTL-controlled cutovers, backend isolation, failover and a systematic troubleshooting method.
+Computer Networks course project — Team Error-101
+Manpreet Singh · Avneet Singh · Riya Yadav
 
-> *The application stays simple — the network is the project.*
+A small web service that runs entirely on a private LAN of three MacBooks. A client opens
+`https://app.team1.test:8443`; the name is resolved by our own DNS server, the HTTPS connection is terminated by an
+nginx reverse proxy, and the request is load-balanced across two REST backends. The application itself is
+deliberately trivial — the point of the project is the network path in between: DNS, TCP, TLS, HTTP, load balancing,
+caching, and what happens when parts of that path fail.
 
-| Member | Machine | IP | Role |
+The project was built in two phases. Phase 1 builds the service and observes every protocol with packet captures.
+Phase 2 hardens it: a backup DNS server, controlled DNS TTLs, a firewall that isolates the backends, backend failover,
+a DNS-based move to a standby edge server, and a layer-by-layer method for diagnosing faults.
+
+---
+
+## Network design
+
+The reference design uses four Macs. With three, Mac 3 hosts both backends as well as the backup DNS server and the
+standby edge.
+
+| Machine | Member | IP address | Role |
 |---|---|---|---|
-| Manpreet Singh | Mac 1 (MacBook Pro) | 10.7.9.246 | Primary DNS (dnsmasq) · test client |
-| Avneet Singh | Mac 2 (MacBook Air) | 10.7.19.93 | Main edge: nginx — TLS, load balancing, caching |
-| Riya Yadav | Mac 3 (MacBook Pro) | 10.7.31.224 | Backend A :3001 · Backend B :3002 · backup DNS · standby edge |
+| Mac 1 | Manpreet | 10.7.9.246 | Primary DNS server (dnsmasq), test client |
+| Mac 2 | Avneet | 10.7.19.93 | Edge server: nginx reverse proxy, TLS termination, load balancer, HTTP cache |
+| Mac 3 | Riya | 10.7.31.224 | Backend A (port 3001), Backend B (port 3002), backup DNS server, standby nginx edge |
 
-LAN 10.7.0.0/19 (gateway 10.7.0.1, Wi-Fi `en0`). The 4-Mac reference design is adapted to 3 Macs: Mac 3 combines roles.
+All three machines are on the same Wi-Fi network (10.7.0.0/19, gateway 10.7.0.1, interface `en0`).
+The private domain is `team1.test` — the `.test` top-level domain is reserved for testing, so it never resolves on the
+public internet and does not clash with macOS multicast DNS the way `.local` would.
 
 ```text
-                         PRIVATE LAN 10.7.0.0/19
-      ┌───────────────────────┬──────────────────────────┬──────────────────────────────┐
-   Mac 1 10.7.9.246        Mac 2 10.7.19.93            Mac 3 10.7.31.224
-   Primary DNS :53         nginx edge                  Backend A :3001   Backend B :3002
-   client                  HTTPS :8443, HTTP :8080→301  Backup DNS :53
-                           LB + proxy cache             Standby nginx edge :8443
-   app.team1.test ──DNS──▶ (A record, TTL 30) ──HTTPS──▶ edge ──HTTP──▶ Backend A / B
+                              Private LAN 10.7.0.0/19
+        +----------------------+----------------------------+-----------------------------+
+        |                      |                            |                             |
+   Mac 1  10.7.9.246      Mac 2  10.7.19.93            Mac 3  10.7.31.224
+   dnsmasq  :53           nginx  :8443 (HTTPS)         Backend A :3001   Backend B :3002
+   (primary DNS)                 :8080 (-> HTTPS)      dnsmasq :53 (backup DNS)
+   client                 load balancer + cache        nginx :8443 (standby edge)
+
+   client --DNS--> Mac 1 (or Mac 3) --A record--> edge IP --HTTPS--> nginx --HTTP--> Backend A / B
 ```
-Full diagrams (topology, per-layer request flow, Phase 2 resilience, migration timeline): [`docs/Architecture.md`](docs/Architecture.md)
 
-### Current state (end of Phase 2, 23 Nov 2026)
-| DNS record (primary **and** backup, TTL 30 s) | Points to | Note |
+| Name | Address | Served by |
 |---|---|---|
-| `app.team1.test` | 10.7.31.224 — **standby edge on Mac 3** | migrated there in Ext E and kept for the final demo; the main edge on Mac 2 keeps running with the same certificate |
-| `api.team1.test` | 10.7.19.93 — main edge on Mac 2 | certificate SAN covers only `app.team1.test` |
+| `app.team1.test` | 10.7.31.224 | standby edge on Mac 3 (the application was migrated there in Phase 2; the edge on Mac 2 keeps running) |
+| `api.team1.test` | 10.7.19.93 | edge on Mac 2 |
 
-All three Macs resolve `*.team1.test` through `/etc/resolver/team1.test` → `nameserver 10.7.9.246` (primary), `nameserver 10.7.31.224` (backup).
-Features only on the main edge (Mac 2): proxy cache (`X-Cache-Status`, 304) and the `:8080` → HTTPS redirect.
+Both DNS servers hold identical records with a TTL of 30 seconds. Diagrams of the topology and the per-layer request
+flow are in [`docs/Architecture.md`](docs/Architecture.md).
 
-## Status — every requirement with its evidence
-### Phase 1 — Build & Observe
-| Task | Status | Evidence |
-|---|---|---|
-| A — Private LAN, IP/MAC/gateway, ping matrix | ✅ | [`evidence/phase1/01_lan_interfaces_ping/`](evidence/phase1/01_lan_interfaces_ping/) |
-| B — Private DNS (dnsmasq); **all 3 Macs resolve via team DNS** (primary + backup); public DNS → NXDOMAIN | ✅ | [`evidence/phase1/02_dns/`](evidence/phase1/02_dns/) |
-| C — Two REST backends with `X-Backend` | ✅ | [`backend/`](backend/) |
-| D — nginx reverse proxy, round-robin LB | ✅ | [`evidence/phase1/04_load_balancing/`](evidence/phase1/04_load_balancing/) |
-| E — HTTPS/TLS (mkcert, no `-k` on all 3 Macs), HTTP→HTTPS redirect | ✅ | [`evidence/phase1/02_dns/`](evidence/phase1/02_dns/) (`TaskB_mac*_client_*`), [`evidence/phase1/05_https_redirect/`](evidence/phase1/05_https_redirect/) |
-| F — Cache-Control, ETag, MISS → HIT → **304** | ✅ | [`evidence/phase1/06_http_caching/`](evidence/phase1/06_http_caching/) |
-| G — Packet capture DNS → TCP 3-way → TLS 1.3 (saved `.pcapng`) | ✅ | [`evidence/phase1/03_tcp_tls_packet_capture/`](evidence/phase1/03_tcp_tls_packet_capture/) |
-| 6.3 — Failure demos (wrong DNS server, wrong IP, one/both backends down → 502, wrong port) | ✅ | [`evidence/phase1/07_failure_demos/`](evidence/phase1/07_failure_demos/) |
+---
 
-### Phase 2 — Harden & Recover
-| Extension | Status | Evidence |
-|---|---|---|
-| A — Backup DNS resolver | ✅ | [`evidence/phase2/A_backup_dns/`](evidence/phase2/A_backup_dns/) |
-| B — DNS TTL: cached old answer → expiry → new answer → manual flush | ✅ | [`evidence/phase2/B_dns_ttl/`](evidence/phase2/B_dns_ttl/) |
-| C — Backend isolation with PF (only the edge reaches :3001/:3002), rolled back | ✅ | [`evidence/phase2/C_firewall/`](evidence/phase2/C_firewall/) |
-| D — Backend failover (A down → B serves; both down → 502; recovery) | ✅ | [`evidence/phase2/D_backend_failover/`](evidence/phase2/D_backend_failover/) |
-| E — DNS-based edge migration: cached client on old edge, new clients on standby | ✅ | [`evidence/phase2/E_edge_migration/`](evidence/phase2/E_edge_migration/) |
-| F — Troubleshooting method + tool; real firewall fault diagnosed | ✅ ready | [`evidence/phase2/F_troubleshooting/`](evidence/phase2/F_troubleshooting/), [`docs/Troubleshooting_Checklist.md`](docs/Troubleshooting_Checklist.md) |
+## How a request travels
 
-**Phase 2 report:** [PDF with screenshots](docs/Phase2_Final_Report.pdf) · [Markdown source](docs/Phase2_Final_Report.md) · **Architecture:** [`docs/Architecture.md`](docs/Architecture.md) ·
-**Troubleshooting:** [`docs/Troubleshooting_Checklist.md`](docs/Troubleshooting_Checklist.md)
+1. **DNS (UDP 53).** macOS sends queries for `*.team1.test` to the servers listed in `/etc/resolver/team1.test`
+   (10.7.9.246, then 10.7.31.224). dnsmasq answers `app.team1.test` with the edge's IP address and a 30-second TTL,
+   which the client caches.
+2. **TCP.** The client opens a connection from an ephemeral port to port 8443 on the edge with the three-way handshake
+   (SYN, SYN-ACK, ACK).
+3. **TLS 1.3.** The client sends a ClientHello with SNI `app.team1.test`; the server answers with its certificate,
+   created with mkcert. Every Mac trusts the mkcert root CA, so the certificate verifies without `curl -k`.
+4. **Reverse proxy.** nginx decrypts the request, checks its proxy cache, and forwards it to one of the two backends
+   using round robin.
+5. **Backend.** A small Express application answers `GET /api/status` with
+   `{"backend":"A","status":"ok"}` plus the headers `X-Backend`, `Cache-Control: max-age=60` and an `ETag`.
+6. The response returns to the client over the same encrypted connection.
 
-## Where the evidence was captured
-- **Screenshots** were taken on **Mac 1** (each header shows machine, IP and time). Most show Mac 1 acting as the **client**
-  (DNS, HTTPS, load balancing, caching, packet capture, TTL, migration, failover and firewall monitoring) — the brief's test-client role.
-- **Server-side output from Mac 2 and Mac 3** (PF rules and rollback, backend stop/restart, client checks on those Macs, Task A
-  ping/interface data) was produced **on those machines** by their owners' sessions and saved there
-  (e.g. Mac 3 `~/cn-project/evidences/CD_mac3_timeline_231150.txt`); copies are in this repo as `.txt`, and screenshots of them are
-  labelled *"output relayed from Mac 2/Mac 3"*.
+A plain-HTTP request to port 8080 on Mac 2 is answered with `301` to the HTTPS URL.
+
+---
+
+## Components
+
+### DNS — dnsmasq (Mac 1 primary, Mac 3 backup)
+Records are defined with `address=/app.team1.test/<ip>`. `local-ttl=30` makes answers cacheable for 30 seconds.
+dnsmasq listens only on the loopback and LAN address (`listen-address`, `bind-interfaces`). Mac 1 also loads
+`team1-ttl.hosts` through `addn-hosts`; records in that file can be changed with a SIGHUP instead of a restart, which
+we used for the TTL experiments.
+Config: [`configs/mac1-primary-dns/`](configs/mac1-primary-dns/), [`configs/mac3-backup-dns/`](configs/mac3-backup-dns/).
+
+### Edge — nginx (Mac 2, standby on Mac 3)
+- `listen 8443 ssl` with the mkcert certificate for `app.team1.test`; port 8080 redirects to HTTPS.
+- `upstream backend_servers` with both backends; default round-robin balancing.
+- `proxy_cache` with `proxy_cache_valid 200 60s` and an `X-Cache-Status` header, so cached responses show `HIT` and
+  conditional requests (`If-None-Match`) get `304 Not Modified`.
+- Failure handling: `max_fails=1 fail_timeout=5s` takes a failed backend out of rotation for five seconds, and
+  `proxy_next_upstream error timeout http_502 http_503 http_504` retries the request on the other backend.
+- The standby edge on Mac 3 uses the same certificate and failover settings, with upstreams on `127.0.0.1`.
+
+Config: [`configs/mac2-main-edge/nginx.conf`](configs/mac2-main-edge/nginx.conf),
+[`configs/mac3-standby-edge/nginx.conf`](configs/mac3-standby-edge/nginx.conf).
+
+### Backends — Node.js / Express (Mac 3)
+Two copies of the same minimal service, differing only in port and identity (A on 3001, B on 3002). Both listen on
+`0.0.0.0` so the edge can reach them over the LAN. Source: [`backend/`](backend/).
+
+### Backend isolation — PF firewall (Mac 3)
+Two rules allow only the edge (10.7.19.93) to reach ports 3001/3002 and drop everyone else. They are loaded into a
+separate PF anchor, `com.apple/250.CNProject`, so the system ruleset is never modified and rollback is a single flush.
+Rules and the saved baseline: [`configs/mac3-firewall/`](configs/mac3-firewall/).
+
+---
+
+## Phase 2: resilience and recovery
+
+**Backup DNS.** The client lists two nameservers. With dnsmasq on Mac 1 stopped, lookups fall back to Mac 3 after the
+first server times out (about 3 seconds in our test) and the site stays reachable.
+
+**DNS TTL.** A client that has cached a record keeps using the old address after the record changes, until the
+30-second TTL expires; it then asks again and gets the new one. Flushing the cache makes the change visible immediately.
+Querying a server directly with `dig @server` bypasses caching entirely, so the effect is only visible through a cache.
+
+**Service isolation.** With the PF rules active, a client connecting directly to a backend port times out, while the
+edge still reaches both backends and the site keeps working over HTTPS. The rules are removed afterwards and the
+ruleset returns to its saved baseline.
+
+**Backend failover.** When Backend A stops, every request is answered by Backend B without any error reaching the
+client; when A comes back, round robin resumes. With both backends down, the edge returns `502 Bad Gateway` — DNS, TCP
+and TLS still succeed, which shows exactly where the failure is.
+
+**Edge migration.** `app.team1.test` was moved from the edge on Mac 2 to the standby edge on Mac 3 by changing the DNS
+record. New lookups went to Mac 3 straight away; a client holding the cached answer kept using Mac 2 until its TTL
+expired (26 seconds after the change). Because both edges kept serving, no request failed during the move.
+
+**Troubleshooting.** Faults are isolated one layer at a time — DNS, IP reachability, TCP, TLS, HTTP/proxy, backend.
+A refused connection means the host is up but nothing listens on that port; a timeout means packets are being dropped,
+usually by a firewall. The procedure is in [`docs/Troubleshooting_Checklist.md`](docs/Troubleshooting_Checklist.md)
+and automated in `scripts/diagnose.sh`. While preparing Phase 2 we used it on a real outage: the services on Mac 3 were
+running but unreachable because the macOS Application Firewall was dropping inbound connections to the Homebrew
+binaries.
+
+The full write-up with configuration, commands and observed results for every part is the
+[Phase 2 report (PDF)](docs/Phase2_Final_Report.pdf) ([Markdown source](docs/Phase2_Final_Report.md)).
+
+---
+
+## Setting it up
+
+1. **Backends (Mac 3):** `cd backend && npm install`, then `npm run start:a` and `npm run start:b` in two terminals.
+2. **DNS (Mac 1 and Mac 3):** copy the dnsmasq configuration from `configs/` to `/opt/homebrew/etc/dnsmasq.conf` and run
+   `sudo brew services restart dnsmasq`.
+3. **TLS certificate:** on the edge, `mkcert -install` and `mkcert app.team1.test`; install the mkcert root CA on every
+   client. Private keys stay on the machines and are excluded from the repository.
+4. **Edge (Mac 2, and Mac 3 for the standby):** install the nginx configuration from `configs/`, check it with
+   `sudo nginx -t`, then start or reload nginx.
+5. **Clients (all Macs):** copy `configs/mac1-primary-dns/resolver-team1.test` to `/etc/resolver/team1.test`.
+6. **macOS firewall:** if it is enabled, allow incoming connections for `node`, `nginx` and `dnsmasq`.
+
+More detail — TLS notes, PF commands, live file locations — is in [`configs/README.md`](configs/README.md); the
+original per-machine Phase 1 guides are in [`docs/setup/`](docs/setup/).
+
+## Checking it works
+
+```bash
+dscacheutil -q host -a name app.team1.test                       # name resolves through the team DNS
+curl -v https://app.team1.test:8443/api/status                   # TLS verifies, HTTP 200, X-Backend: A or B
+for i in 1 2 3 4; do curl -s -D - -o /dev/null "https://app.team1.test:8443/api/status?n=$i" | grep -i x-backend; done
+scripts/diagnose.sh                                              # checks every layer in order
+```
+
+---
 
 ## Repository layout
+
 ```text
-README.md                    ← you are here (status + evidence index)
-backend/                     Backend A (:3001) and B (:3002) — Express; `npm run start:a` / `npm run start:b`
-configs/                     Configuration bundle, one folder per machine role (+ TLS setup notes)
-  mac1-primary-dns/          dnsmasq.conf, team1-ttl.hosts, resolver-team1.test
-  mac2-main-edge/            nginx.conf (TLS, upstreams, cache, failover)
-  mac3-backup-dns/           dnsmasq.conf
-  mac3-standby-edge/         nginx.conf
-  mac3-firewall/             pf-cn-project.conf, pf-rules-before-project.txt (rollback baseline)
-docs/
-  Phase2_Final_Report.pdf    Phase 2 report for submission (13 pages, screenshots inline)
-  Phase2_Final_Report.md     its Markdown source (objective, config, commands, expected vs observed, evidence, learning)
-  Architecture.md            Diagrams (Mermaid) + IP/service inventory + SPOF analysis
-  Troubleshooting_Checklist.md  Ext F layer-by-layer method
-  Phase1_Overview.md         Original Phase 1 write-up (IPs updated)
-  setup/                     Per-machine Phase 1 setup guides (Mac 1/2/3)
-evidence/
-  phase1/01…07_*/            Screenshots, .pcapng capture, decoded output, video
-  phase2/A…F_*/              Screenshots + raw timestamped logs per extension
-  audit_2026-11-23/          Read-only audit outputs of all three Macs (before the Phase 2 fixes)
-scripts/                     Reproducible demos and tools (all run on Mac 1 unless noted)
+backend/     Backend A and B (Express)
+configs/     dnsmasq, nginx, resolver and PF configuration for each machine, with TLS and setup notes
+docs/        Phase 2 report (PDF + Markdown), architecture diagrams, troubleshooting procedure, Phase 1 guides
+evidence/    Screenshots, logs and packet captures from both phases
+scripts/     Test and demonstration scripts used to produce the evidence
 ```
 
-## Scripts (`scripts/`)
 | Script | Purpose |
 |---|---|
-| `diagnose.sh [name] [port]` | **Ext F:** read-only layered diagnosis DNS → IP → TCP → TLS → HTTP → LB; names the failing layer |
-| `ttl_demo.sh` | **Ext B:** full TTL demonstration (~1 min, one sudo prompt) |
-| `edge_migration_demo.sh` | **Ext E:** DNS cutover with cached vs new client (~1.5 min) |
-| `cd_monitor.sh [seconds]` | **Ext C/D:** per-second HTTPS through both edges (unique URLs) + direct backend reachability |
-| `backup_dns_failover_demo.sh` | **Ext A:** stop primary DNS, resolve + HTTPS via backup, restore (~20 s) |
-| `phase1_capture.sh` | **Task G + failure 2:** packet capture of one full request, decoded with tshark |
-| `e2e_check.sh <file>` | quick end-to-end health check, saved as evidence |
-| `shot.sh <png> '<cmd>' [label]` | evidence screenshot: runs the command in a fresh Terminal window and captures only that window |
-| `ev.sh <file> '<cmd>'` | run a command and append timestamped output to an evidence file |
-| `failover_monitor.sh` | first Ext D monitor (run 1); superseded by `cd_monitor.sh` — see the cache-masking lesson in the report §7 |
-| `trim.py` | helper for `shot.sh`: trims empty terminal space from screenshots |
-| `build_report_pdf.py` | rebuilds `docs/Phase2_Final_Report.pdf` from the Markdown + screenshots (needs `reportlab`, `pillow`) |
+| `diagnose.sh` | Checks DNS, reachability, TCP, TLS, HTTP and load balancing in order and reports the first failing layer |
+| `backup_dns_failover_demo.sh` | Stops the primary DNS, resolves and connects through the backup, then restores it |
+| `ttl_demo.sh` | Shows a cached answer outliving a record change until the TTL expires, and a manual flush |
+| `edge_migration_demo.sh` | Moves `app.team1.test` between edges and compares a cached client with a new one |
+| `cd_monitor.sh` / `failover_monitor.sh` | Sends requests through both edges and to the backend ports once a second during failure tests |
+| `phase1_capture.sh` | Captures one complete request (DNS, TCP, TLS) to a `.pcapng` file and decodes it |
+| `e2e_check.sh`, `ev.sh`, `shot.sh`, `trim.py` | Helpers for recording command output and screenshots |
+| `build_report_pdf.py` | Builds the PDF report from the Markdown source and screenshots |
 
-## How to bring the platform up
-1. **Mac 3 — backends:** `cd backend && npm install`, then `npm run start:a` and `npm run start:b` (two terminals). Both bind `0.0.0.0`.
-2. **Mac 1 / Mac 3 — DNS:** install `configs/mac1-primary-dns/dnsmasq.conf` (+ `team1-ttl.hosts`) on Mac 1 and
-   `configs/mac3-backup-dns/dnsmasq.conf` on Mac 3 at `/opt/homebrew/etc/`, then `sudo brew services restart dnsmasq`.
-3. **Mac 2 / Mac 3 — edges:** mkcert certificate for `app.team1.test`; `configs/mac2-main-edge/nginx.conf` on Mac 2,
-   `configs/mac3-standby-edge/nginx.conf` on Mac 3 (`nginx -p ~/cn-project/standby-nginx/ -c nginx.conf`); `sudo nginx -t` first.
-4. **Every client Mac:** copy `configs/mac1-primary-dns/resolver-team1.test` to `/etc/resolver/team1.test` and trust the mkcert root CA.
-5. **macOS Application Firewall** (if on): allow the real paths of `node`, `nginx`, `dnsmasq` — otherwise inbound connections are
-   silently dropped (the outage diagnosed in Ext F).
+### About the evidence
+`evidence/phase1/` and `evidence/phase2/` hold one folder per task. Screenshots were taken on Mac 1, which is the test
+client in this design; output produced on Mac 2 and Mac 3 (firewall rules, backend restarts, client checks on those
+machines) was recorded on those machines and is included as text logs, with screenshots of it marked as relayed.
+`evidence/audit_2026-11-23/` contains the read-only checks of all three machines taken before the Phase 2 fixes.
 
-Details, TLS notes and PF commands: [`configs/README.md`](configs/README.md); per-machine walkthroughs: [`docs/setup/`](docs/setup/).
-
-## Quick verification (from any Mac)
-```bash
-dscacheutil -q host -a name app.team1.test               # → 10.7.31.224 (system resolver → team DNS)
-curl -v https://app.team1.test:8443/api/status             # TLS verified, HTTP 200, X-Backend: A|B
-scripts/diagnose.sh                                        # all layers PASS
-```
-
-## Security
-Private keys, the mkcert CA key and `.env` files are excluded by `.gitignore` and were never read or committed.
+TLS private keys, the mkcert CA key and environment files are excluded by `.gitignore`.
