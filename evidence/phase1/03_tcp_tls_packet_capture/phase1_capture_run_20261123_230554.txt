@@ -1,0 +1,43 @@
+Phase 1 capture run — 2026-11-23 23:05:54 IST — Manpreet’s MacBook Pro (10.7.9.246)
+
+[23:06:01] ===== (G) Capturing one full client request on en0 + lo0 -> /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/05_Phase1_Gaps/TaskG_full_request_20261123_230554.pcapng
+[23:06:04] client: system resolver lookup of app.team1.test (Mac 1 is configured to use 10.7.9.246, then 10.7.31.224)
+ip_address: 10.7.31.224
+[23:06:04] client: DNS query across the LAN to the backup server too (so DNS is also visible on en0)
+10.7.31.224
+[23:06:04] client: HTTPS request by name (no -k)
+HTTP/1.1 200 OK
+X-Backend: A
+ETag: "backend-a-v1"
+{"backend":"A","status":"ok"}
+  -> local 10.7.9.246:50627  ->  server 10.7.31.224:8443, TLS verify=0
+[23:06:07] capture saved: 7564 bytes
+
+[23:06:07] ===== (G) Decoded with tshark (same view as Wireshark)
+--- DNS (UDP 53): query + response
+  t=0.000s  10.7.9.246:60065 -> 10.7.9.246:53  QUERY 
+  t=0.000s  10.7.9.246:60065 -> 10.7.9.246:53  QUERY 
+  t=0.014s  10.7.9.246:53 -> 10.7.9.246:60065  RESPONSE 
+  t=0.014s  10.7.9.246:53 -> 10.7.9.246:60065  RESPONSE 
+  t=0.018s  10.7.9.246:51201 -> 10.7.9.246:53  QUERY 
+  t=0.018s  10.7.9.246:51201 -> 10.7.9.246:53  QUERY 
+  t=0.021s  10.7.9.246:53 -> 10.7.9.246:51201  RESPONSE 10.7.31.224
+  t=0.021s  10.7.9.246:53 -> 10.7.9.246:51201  RESPONSE 10.7.31.224
+  t=0.045s  10.7.9.246:57277 -> 10.7.31.224:53  QUERY 
+  t=0.062s  10.7.31.224:53 -> 10.7.9.246:57277  RESPONSE 10.7.31.224
+--- TCP 3-way handshake + TLS handshake on 8443
+--- Encrypted application data (HTTP inside TLS)
+
+[23:06:08] ===== (F2) DNS record points to a WRONG IP
+[23:06:09] DNS answer (lookup SUCCEEDS):
+
+; <<>> DiG 9.10.6 <<>> @10.7.9.246 wrong.team1.test +noall +answer
+; (1 server found)
+;; global options: +cmd
+wrong.team1.test.	30	IN	A	10.7.9.246
+[23:06:09] but the client is sent to the wrong host (Mac 1 has no web server on 8443):
+curl: (7) Failed to connect to wrong.team1.test port 8443 after 7 ms: Couldn't connect to server
+  curl exit=7
+[23:06:10] test record removed -> status: NXDOMAIN
+
+DONE

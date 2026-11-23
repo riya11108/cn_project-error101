@@ -1,0 +1,76 @@
+Extension E edge migration demo — 2026-11-23 23:02:19 IST — Manpreet’s MacBook Pro (10.7.9.246)
+Evidence: /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/06_Phase2/Extension_E_Edge_Migration/E_migration_run_20261123_230219.txt
+
+[23:02:19] ========== SETUP (needs your Mac password once) ==========
+[23:02:54] Backed up /opt/homebrew/etc/dnsmasq.conf -> /opt/homebrew/etc/dnsmasq.conf.bak-extE-20261123_230219
+[23:02:54] Before: primary app.team1.test -> 10.7.31.224, backup -> 10.7.31.224
+[23:02:54] Both edges healthy?  Mac 2: HTTPS 200, TLS verify=0, connected to 10.7.19.93:8443   |   Mac 3: HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443
+
+[23:02:54] ========== STEP 1 — Pre-migration state: app.team1.test served by the ORIGINAL edge (Mac 2) ==========
+[23:02:56] ADMIN: primary DNS record changed -> app.team1.test = 10.7.19.93 (Mac 2 original edge); primary now answers 10.7.19.93
+[23:02:57] EXISTING client  DNS -> 10.7.19.93   (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.19.93:8443  [Mac 2 original edge]
+        ^ existing client resolved the name and cached it (TTL 30 s)
+[23:03:00] EXISTING client  DNS -> 10.7.19.93   (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.19.93:8443  [Mac 2 original edge]
+
+[23:03:00] ========== STEP 2 — MIGRATION: DNS cutover of app.team1.test to the STANDBY edge (Mac 3) ==========
+[23:03:05] ADMIN: primary DNS record changed -> app.team1.test = 10.7.31.224 (Mac 3 standby edge); primary now answers 10.7.31.224
+
+[23:03:05] ========== STEP 3 — During TTL window: existing client still hits OLD edge, new lookups go to NEW edge (E4/E5) ==========
+[23:03:05] NEW client       DNS -> 10.7.31.224  (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443  [Mac 3 standby edge]
+[23:03:05] EXISTING client  DNS -> 10.7.19.93   (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.19.93:8443  [Mac 2 original edge]   [+0s after cutover]
+[23:03:10] NEW client       DNS -> 10.7.31.224  (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443  [Mac 3 standby edge]
+[23:03:10] EXISTING client  DNS -> 10.7.19.93   (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.19.93:8443  [Mac 2 original edge]   [+5s after cutover]
+[23:03:16] NEW client       DNS -> 10.7.31.224  (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443  [Mac 3 standby edge]
+[23:03:16] EXISTING client  DNS -> 10.7.19.93   (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.19.93:8443  [Mac 2 original edge]   [+11s after cutover]
+[23:03:21] NEW client       DNS -> 10.7.31.224  (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443  [Mac 3 standby edge]
+[23:03:21] EXISTING client  DNS -> 10.7.19.93   (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.19.93:8443  [Mac 2 original edge]   [+16s after cutover]
+[23:03:26] NEW client       DNS -> 10.7.31.224  (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443  [Mac 3 standby edge]
+[23:03:26] EXISTING client  DNS -> 10.7.19.93   (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.19.93:8443  [Mac 2 original edge]   [+21s after cutover]
+[23:03:31] NEW client       DNS -> 10.7.31.224  (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443  [Mac 3 standby edge]
+[23:03:31] EXISTING client  DNS -> 10.7.31.224  (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443  [Mac 3 standby edge]   [+26s after cutover]
+
+[23:03:31] ========== STEP 4 — TTL expired: existing client re-resolved and now also reaches the standby edge ==========
+[23:03:31] EXISTING client  DNS -> 10.7.31.224  (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443  [Mac 3 standby edge]
+[23:03:32] NEW client       DNS -> 10.7.31.224  (TTL  -)  => HTTPS 200, TLS verify=0, connected to 10.7.31.224:8443  [Mac 3 standby edge]
+
+[23:03:32] ========== CLEANUP + Mac 1 as a project DNS client ==========
+[23:03:32] Existing-client caching resolver stopped
+[23:03:32] Created /etc/resolver/team1.test (macOS per-domain resolver: primary 10.7.9.246, backup 10.7.31.224)
+[23:03:33] Final: primary app.team1.test -> 10.7.31.224, backup -> 10.7.31.224
+[23:03:33] macOS system resolver (scutil --dns, team1.test):
+  domain   : team1.test
+  nameserver[0] : 10.7.9.246
+  nameserver[1] : 10.7.31.224
+  flags    : Request A records
+  reach    : 0x00030002 (Reachable,Local Address,Directly Reachable Address)
+[23:03:33] System lookup: ip_address: 10.7.31.224
+[23:03:33] Plain curl (system DNS, no -k, no --resolve):
+HTTP/1.1 200 OK
+X-Backend: A
+ETag: "backend-a-v1"
+{"backend":"A","status":"ok"}
+  -> connected to 10.7.31.224, TLS verify=0
+
+Existing-client resolver log (forwarded = asked server, cached = answered from cache):
+Nov 23 23:02:57 dnsmasq[10921]: forwarded app.team1.test to 10.7.9.246
+Nov 23 23:02:57 dnsmasq[10921]: reply app.team1.test is 10.7.19.93
+Nov 23 23:02:57 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:00 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:00 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:05 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:05 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:10 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:10 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:16 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:16 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:21 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:21 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:26 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:26 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:31 dnsmasq[10921]: forwarded app.team1.test to 10.7.9.246
+Nov 23 23:03:31 dnsmasq[10921]: reply app.team1.test is 10.7.31.224
+Nov 23 23:03:31 dnsmasq[10921]: cached app.team1.test is 10.7.31.224
+Nov 23 23:03:31 dnsmasq[10921]: cached app.team1.test is 10.7.31.224
+Nov 23 23:03:31 dnsmasq[10921]: cached app.team1.test is 10.7.31.224
+
+DONE

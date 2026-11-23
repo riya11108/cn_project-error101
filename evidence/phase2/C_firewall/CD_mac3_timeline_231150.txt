@@ -1,0 +1,48 @@
+Mac 3 (Riya, 10.7.31.224) — Ext D rerun + Ext C PF timeline. Run by Riya's Claude session; Riya approved and typed her sudo
+password herself. Source: /Users/riyayadav/cn-project/evidences/CD_mac3_timeline_231150.txt (relayed 2026-11-23 ~23:16 IST).
+Script: ~/cn-project/cd_demo.sh (+ safety trap that would roll back PF/restart Backend A on early exit; it did not fire).
+
+[23:12:28] === Ext D rerun: BEFORE
+COMMAND   PID      USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    43604 riyayadav   15u  IPv4 0xe2e9e1c96118351b      0t0  TCP *:3001 (LISTEN)
+node    43606 riyayadav   15u  IPv4 0x9e4f2ba3d3c9174d      0t0  TCP *:3002 (LISTEN)
+[23:12:38] STOP Backend A pid 43604
+[23:13:08] RESTART Backend A
+COMMAND   PID      USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    43606 riyayadav   15u  IPv4 0x9e4f2ba3d3c9174d      0t0  TCP *:3002 (LISTEN)
+node    44213 riyayadav   15u  IPv4 0xece1dacaf76cd1f2      0t0  TCP *:3001 (LISTEN)
+[23:13:26] === Ext C: PF state BEFORE
+Status: Disabled for 0 days 05:55:11          Debug: Urgent
+scrub-anchor "com.apple/*" all fragment reassemble
+anchor "com.apple/*" all
+[23:13:26] Loading rules into anchor com.apple/250.CNProject:
+# Ext C: only the edge (Mac 2, 10.7.19.93) may reach the backend ports on Mac 3
+pass in quick on en0 inet proto tcp from 10.7.19.93 to 10.7.31.224 port { 3001, 3002 } flags S/SA keep state
+block in quick on en0 inet proto tcp from any to 10.7.31.224 port { 3001, 3002 }
+pfctl: Use of -f option, could result in flushing of rules
+present in the main ruleset added by the system at startup.
+See /etc/pf.conf for further details.
+   (generic pfctl warning — rules were loaded into the anchor only; main ruleset unchanged, see AFTER)
+
+[23:13:27] PF enabled (token 18150446530197516161)
+[23:13:27] Active anchor rules:
+pass in quick on en0 inet proto tcp from 10.7.19.93 to 10.7.31.224 port = 3001 flags S/SA keep state
+pass in quick on en0 inet proto tcp from 10.7.19.93 to 10.7.31.224 port = 3002 flags S/SA keep state
+block drop in quick on en0 inet proto tcp from any to 10.7.31.224 port = 3001
+block drop in quick on en0 inet proto tcp from any to 10.7.31.224 port = 3002
+[23:13:27] local check (loopback is not en0, standby edge unaffected): 200
+[23:14:57] === ROLLBACK
+rules cleared
+nat cleared
+dummynet cleared
+0 tables deleted.
+pf disabled
+[23:14:57] PF state AFTER:
+Status: Disabled for 0 days 00:00:00          Debug: Urgent
+anchor rules now:
+main rules now (compare with ~/pf-rules-before-project.txt):
+scrub-anchor "com.apple/*" all fragment reassemble
+anchor "com.apple/*" all
+[23:14:58] DONE
+
+Post-check (Riya's session): Backend A PID 44213 :3001, Backend B PID 43606 :3002, both 200 via LAN IP; standby nginx :8443 → 200.

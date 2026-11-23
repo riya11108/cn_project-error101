@@ -1,0 +1,53 @@
+Phase 1 Task A — interface details + ping from Mac 2 and Mac 3 (collected 2026-11-23 23:01 IST by each Mac's Claude session, read-only)
+
+==================== MAC 2 — Avneet's MacBook Air ====================
+Mon Nov 23 23:01:22 IST 2026
+Avneet’s MacBook Air
+10.7.19.93
+	ether 2e:30:0b:a1:32:2a
+	inet 10.7.19.93 netmask 0xffffe000 broadcast 10.7.31.255
+	status: active
+    gateway: 10.7.0.1
+  interface: en0
+PING 10.7.9.246 (10.7.9.246): 56 data bytes
+64 bytes from 10.7.9.246: icmp_seq=0 ttl=64 time=97.304 ms
+64 bytes from 10.7.9.246: icmp_seq=1 ttl=64 time=6.601 ms
+Request timeout for icmp_seq 2
+64 bytes from 10.7.9.246: icmp_seq=3 ttl=64 time=6.485 ms
+--- 10.7.9.246 ping statistics ---
+4 packets transmitted, 3 packets received, 25.0% packet loss
+round-trip min/avg/max/stddev = 6.485/36.797/97.304/42.785 ms
+PING 10.7.31.224 (10.7.31.224): 56 data bytes
+64 bytes from 10.7.31.224: icmp_seq=0 ttl=64 time=14.416 ms
+64 bytes from 10.7.31.224: icmp_seq=1 ttl=64 time=7.054 ms
+64 bytes from 10.7.31.224: icmp_seq=2 ttl=64 time=6.613 ms
+64 bytes from 10.7.31.224: icmp_seq=3 ttl=64 time=25.355 ms
+--- 10.7.31.224 ping statistics ---
+4 packets transmitted, 4 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 6.613/13.360/25.355/7.588 ms
+
+==================== MAC 3 — Riya's MacBook Pro ====================
+Mon Nov 23 23:01:23 IST 2026
+Riya's MacBook Pro (5)
+10.7.31.224
+	ether 46:b2:52:34:a6:e0
+	inet 10.7.31.224 netmask 0xffffe000 broadcast 10.7.31.255
+	status: active
+    gateway: 10.7.0.1
+  interface: en0
+PING 10.7.9.246 (10.7.9.246): 56 data bytes
+64 bytes from 10.7.9.246: icmp_seq=0 ttl=64 time=10.739 ms
+Request timeout for icmp_seq 1
+64 bytes from 10.7.9.246: icmp_seq=2 ttl=64 time=8.906 ms
+64 bytes from 10.7.9.246: icmp_seq=3 ttl=64 time=14.898 ms
+--- 10.7.9.246 ping statistics ---
+4 packets transmitted, 3 packets received, 25.0% packet loss
+round-trip min/avg/max/stddev = 8.906/11.514/14.898/2.507 ms
+PING 10.7.19.93 (10.7.19.93): 56 data bytes
+64 bytes from 10.7.19.93: icmp_seq=0 ttl=64 time=28.967 ms
+64 bytes from 10.7.19.93: icmp_seq=1 ttl=64 time=6.519 ms
+64 bytes from 10.7.19.93: icmp_seq=2 ttl=64 time=7.869 ms
+64 bytes from 10.7.19.93: icmp_seq=3 ttl=64 time=212.800 ms
+--- 10.7.19.93 ping statistics ---
+4 packets transmitted, 4 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 6.519/64.039/212.800/86.347 ms

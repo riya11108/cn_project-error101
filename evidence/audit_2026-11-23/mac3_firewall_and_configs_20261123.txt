@@ -1,0 +1,34 @@
+Mac 3 (Riya, 10.7.31.224) — firewall state after fix + configs. Collected ~22:45 IST via Mac 3 Claude session (read-only).
+How the fix was applied: done by Riya herself (method to be confirmed with Riya).
+
+=== socketfilterfw --getglobalstate --listapps (project-relevant entries)
+Firewall is enabled. (State = 1)
+/opt/homebrew/Cellar/nginx/1.31.9/bin/nginx            (Allow incoming connections)
+/opt/homebrew/Cellar/dnsmasq/2.93/sbin/dnsmasq          (Allow incoming connections)
+/Users/riyayadav/.nvm/versions/node/v20.19.6/bin/node   (Allow incoming connections)
+(other 19 entries are unrelated desktop apps / system services)
+
+=== /opt/homebrew/etc/dnsmasq.conf (backup DNS, non-comment lines)
+3:port=53
+4:listen-address=127.0.0.1,10.7.31.224
+5:bind-interfaces
+7:address=/app.team1.test/10.7.31.224
+8:address=/api.team1.test/10.7.19.93
+10:no-resolv
+11:server=8.8.8.8
+12:server=1.1.1.1
+14:log-queries
+15:log-facility=/opt/homebrew/var/log/dnsmasq-backup.log#
+
+=== ~/cn-project/standby-nginx/nginx.conf (grep of key lines)
+16:    upstream backend_servers {
+17:        server 127.0.0.1:3001 max_fails=1 fail_timeout=5s;
+18:        server 127.0.0.1:3002 max_fails=1 fail_timeout=5s;
+21:    server {
+22:        listen 8443 ssl;
+23:        server_name app.team1.test;
+25:        ssl_certificate /Users/riyayadav/cn-project/tls/app.team1.test.pem;
+26:        ssl_certificate_key /Users/riyayadav/cn-project/tls/app.team1.test-key.pem;
+29:            proxy_pass http://backend_servers;
+36:            proxy_next_upstream error timeout http_502 http_503 http_504;
+37:            proxy_next_upstream_tries 2;

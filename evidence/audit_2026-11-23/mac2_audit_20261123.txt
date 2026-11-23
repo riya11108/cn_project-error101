@@ -1,0 +1,79 @@
+==================================================================
+Mac 2 audit — Avneet's MacBook Air (10.7.19.93)
+Collected 2026-11-23 ~22:33 IST by the Claude session on Mac 2 (Remote Control),
+relayed to the Mac 1 session. Read-only; nothing was changed.
+==================================================================
+
+=== 1: identity ===
+Avneet’s MacBook Air
+10.7.19.93
+
+=== 2: nginx processes ===
+57794 nginx: master process nginx
+60576 nginx: worker process
+60577 nginx: cache manager process
+(brew services) nginx         none      <- nginx was started manually, not via brew services
+
+=== 3: nginx -t (run as user, not root) ===
+nginx: the configuration file /opt/homebrew/etc/nginx/nginx.conf syntax is ok
+nginx: [emerg] open() "/opt/homebrew/var/run/nginx.pid" failed (13: Permission denied)
+nginx: configuration file /opt/homebrew/etc/nginx/nginx.conf test failed
+NOTE: syntax is OK; "test failed" is only the pid-file permission (needs sudo).
+
+=== 4: relevant nginx.conf lines ===
+11:    proxy_cache_path /opt/homebrew/var/nginx/cache
+17:    upstream backend_servers {
+18:        server 10.7.31.224:3001 max_fails=1 fail_timeout=5s;
+19:        server 10.7.31.224:3002 max_fails=1 fail_timeout=5s;
+23:        listen 8080;
+24:        server_name app.team1.test;
+30:        listen 8443 ssl;
+31:        server_name app.team1.test;
+33:        ssl_certificate     /Users/avneet/cn-project/tls/app.team1.test.pem;
+34:        ssl_certificate_key /Users/avneet/cn-project/tls/app.team1.test-key.pem;
+37:	proxy_cache api_cache;
+38:proxy_cache_valid 200 60s;
+40:add_header X-Cache-Status $upstream_cache_status;
+42:proxy_cache_revalidate on;
+44:	proxy_next_upstream error timeout http_502 http_503 http_504;
+45:proxy_next_upstream_tries 2;
+
+=== 5: Mac 2 -> Mac 3 backends (HTTP) ===
+Mac3:3001 -> HTTP 000 in 5.006787s
+Mac3:3001 -> FAILED (curl exit 28 = timeout)
+Mac3:3002 -> HTTP 000 in 5.006279s
+Mac3:3002 -> FAILED (curl exit 28 = timeout)
+
+=== 6: TCP + ICMP to Mac 3 ===
+nc 3001 exit=1
+2 packets transmitted, 2 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 407.390/431.695/456.000/24.305 ms
+
+=== 7: tail of /opt/homebrew/var/log/nginx/error.log ===
+2026/10/04 16:41:46 [alert] 10483#0: kill(3648, 1) failed (1: Operation not permitted)
+2026/10/04 16:41:58 [emerg] 10485#0: open() "/opt/homebrew/var/run/nginx.pid" failed (13: Permission denied)
+2026/10/04 16:42:15 [notice] 10491#0: signal process started
+2026/10/04 16:42:15 [alert] 10491#0: kill(3648, 1) failed (1: Operation not permitted)
+2026/11/23 15:41:30 [notice] 57733#0: signal process started
+2026/11/23 15:41:30 [error] 57733#0: invalid PID number "" in "/opt/homebrew/var/run/nginx.pid"
+2026/11/23 16:00:53 [error] 57795#0: *16 kevent() reported that connect() failed (61: Connection refused) while connecting to upstream, client: 10.7.9.246, server: app.team1.test, request: "GET /api/status?failure=2 HTTP/1.1", upstream: "http://10.7.31.224:3002/api/status?failure=2", host: "app.team1.test:8443"
+2026/11/23 16:59:46 [alert] 57796#0: ignore long locked inactive cache entry 4f8a18cefd3be6707aadd63f30185eaf, count:1
+2026/11/23 16:59:46 [error] 57795#0: *26 upstream timed out (60: Operation timed out) while connecting to upstream, client: 10.7.9.246, server: app.team1.test, request: "HEAD / HTTP/1.1", upstream: "http://10.7.31.224:3002/", host: "app.team1.test:8443"
+2026/11/23 17:00:46 [error] 57795#0: *26 upstream timed out (60: Operation timed out) while connecting to upstream, client: 10.7.9.246, server: app.team1.test, request: "HEAD / HTTP/1.1", upstream: "http://10.7.31.224:3001/", host: "app.team1.test:8443"
+2026/11/23 17:01:18 [alert] 57796#0: ignore long locked inactive cache entry 4f8a18cefd3be6707aadd63f30185eaf, count:1
+2026/11/23 17:01:18 [error] 57795#0: *29 upstream timed out (60: Operation timed out) while connecting to upstream, client: 10.7.9.246, server: app.team1.test, request: "HEAD / HTTP/1.1", upstream: "http://10.7.31.224:3001/", host: "app.team1.test:8443"
+2026/11/23 17:22:02 [notice] 60575#0: signal process started
+2026/11/23 17:24:38 [error] 60576#0: *36 kevent() reported that connect() failed (61: Connection refused) while connecting to upstream, client: 10.7.9.246, server: app.team1.test, request: "GET /api/status?failover=1795434877 HTTP/1.1", upstream: "http://10.7.31.224:3001/api/status?failover=1795434877", host: "app.team1.test:8443"
+2026/11/23 22:19:58 [error] 60576#0: *49 upstream timed out (60: Operation timed out) while connecting to upstream, client: 10.7.9.246, server: app.team1.test, request: "GET /api/status?audit=13927 HTTP/1.1", upstream: "http://10.7.31.224:3001/api/status?audit=13927", host: "app.team1.test:8443"
+2026/11/23 22:20:02 [alert] 60577#0: ignore long locked inactive cache entry 83c2347022f2aefc496b0f1d4f1a41d4, count:1
+2026/11/23 22:20:03 [error] 60576#0: *51 upstream timed out (60: Operation timed out) while connecting to upstream, client: 10.7.9.246, server: app.team1.test, request: "HEAD /api/status?audit2=22817 HTTP/1.1", upstream: "http://10.7.31.224:3002/api/status?audit2=22817", host: "app.team1.test:8443"
+2026/11/23 22:20:25 [alert] 60577#0: ignore long locked inactive cache entry a3af2d30982304043e198f5b5248e3f2, count:1
+2026/11/23 22:20:25 [error] 60576#0: *53 upstream timed out (60: Operation timed out) while connecting to upstream, client: 10.7.9.246, server: app.team1.test, request: "GET /api/status?audit3=13353 HTTP/1.1", upstream: "http://10.7.31.224:3001/api/status?audit3=13353", host: "app.team1.test:8443"
+2026/11/23 22:33:53 [emerg] 65517#0: open() "/opt/homebrew/var/run/nginx.pid" failed (13: Permission denied)
+   ^ this last line was written by the audit's own `nginx -t` run (harmless).
+
+=== 8: public certificate (private key not read) ===
+subject=O=mkcert development certificate, OU=avneet@Avneets-MacBook-Air.local (Avneet Singh)
+X509v3 Subject Alternative Name:
+    DNS:app.team1.test
+notAfter=Jan  2 17:12:36 2029 GMT

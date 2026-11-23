@@ -1,0 +1,72 @@
+==================================================================
+Time    : 2026-11-23 22:41:04 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : echo '[1] DNS'; dig @10.7.9.246 app.team1.test +noall +answer +time=2 +tries=1; dig @10.7.31.224 app.team1.test +noall +answer +time=2 +tries=1
+------------------------------------------------------------------
+[1] DNS
+
+; <<>> DiG 9.10.6 <<>> @10.7.9.246 app.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+app.team1.test.		30	IN	A	10.7.31.224
+
+; <<>> DiG 9.10.6 <<>> @10.7.31.224 app.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+app.team1.test.		0	IN	A	10.7.31.224
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:41:04 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : echo '[2] TCP'; for t in '10.7.19.93 8443' '10.7.31.224 8443' '10.7.31.224 3001' '10.7.31.224 3002' '10.7.31.224 53'; do nc -z -G3 ${=t} 2>/dev/null && echo "$t OPEN" || echo "$t TIMEOUT/CLOSED"; done
+------------------------------------------------------------------
+[2] TCP
+10.7.19.93 8443 OPEN
+10.7.31.224 8443 OPEN
+10.7.31.224 3001 OPEN
+10.7.31.224 3002 OPEN
+10.7.31.224 53 OPEN
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:41:04 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : echo '[3+4] TLS + HTTP via each edge'; for ip in 10.7.19.93 10.7.31.224; do curl -s -o /dev/null --max-time 8 --resolve app.team1.test:8443:$ip -w "edge $ip -> HTTP %{http_code}, tls_verify=%{ssl_verify_result}, %{time_total}s
+" "https://app.team1.test:8443/api/status?e2e=$RANDOM"; done
+------------------------------------------------------------------
+[3+4] TLS + HTTP via each edge
+edge 10.7.19.93 -> HTTP 200, tls_verify=0, 0.096549s
+edge 10.7.31.224 -> HTTP 200, tls_verify=0, 0.143727s
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:41:05 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : echo '[5] Load balancing via Mac 2 edge'; for i in 1 2 3 4; do curl -s --max-time 8 --resolve app.team1.test:8443:10.7.19.93 -D - -o /dev/null "https://app.team1.test:8443/api/status?lb=$RANDOM" | grep -iE '^x-backend'; done
+------------------------------------------------------------------
+[5] Load balancing via Mac 2 edge
+X-Backend: B
+X-Backend: B
+X-Backend: B
+X-Backend: B
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:41:19 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : for i in 1 2 3 4 5 6 7 8; do curl -s --max-time 8 --resolve app.team1.test:8443:10.7.19.93 -D - -o /dev/null "https://app.team1.test:8443/api/status?lb=$RANDOM$i" | grep -iE "^x-backend"; done; for p in 3001 3002; do curl -s -m3 -o /dev/null -w "direct Mac1->Mac3:$p %{http_code}
+" http://10.7.31.224:$p/api/status; done
+------------------------------------------------------------------
+X-Backend: A
+X-Backend: B
+X-Backend: A
+X-Backend: B
+X-Backend: A
+X-Backend: B
+X-Backend: A
+X-Backend: B
+direct Mac1->Mac3:3001 200
+direct Mac1->Mac3:3002 200
+[exit code: 0]
+

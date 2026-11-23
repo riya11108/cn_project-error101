@@ -1,7 +1,11 @@
 # Mac 1 — DNS Server + Client Commands
 
+> **Phase 1 setup guide** (IPs updated to the current LAN: Mac 1 10.7.9.246, Mac 2 10.7.19.93, Mac 3 10.7.31.224).
+> The exact configuration running at the end of Phase 2 is in `configs/mac1-primary-dns/ (dnsmasq.conf, team1-ttl.hosts, resolver-team1.test)`.
+> Phase 2 changes and results: `docs/Phase2_Final_Report.md`.
+
 **Role:** Private DNS server + client testing  
-**IP:** `10.7.10.246`  
+**IP:** `10.7.9.246`  
 **Interface:** `en0`  
 **DNS:** `dnsmasq` on UDP/TCP 53
 
@@ -16,7 +20,7 @@ ipconfig getifaddr en0
 Expected:
 
 ```text
-10.7.10.246
+10.7.9.246
 ```
 
 ---
@@ -46,8 +50,8 @@ sudo lsof -nP -iUDP:53
 Relevant configuration:
 
 ```conf
-address=/app.team1.test/10.7.19.2
-address=/api.team1.test/10.7.19.2
+address=/app.team1.test/10.7.19.93
+address=/api.team1.test/10.7.19.93
 listen-address=0.0.0.0
 interface=en0
 ```
@@ -81,7 +85,7 @@ dig @127.0.0.1 app.team1.test
 Expected answer:
 
 ```text
-app.team1.test.    IN    A    10.7.19.2
+app.team1.test.    IN    A    10.7.19.93
 ```
 
 ---
@@ -91,20 +95,20 @@ app.team1.test.    IN    A    10.7.19.2
 Run this on Mac 2:
 
 ```bash
-dig @10.7.10.246 app.team1.test
+dig @10.7.9.246 app.team1.test
 ```
 
 Expected:
 
 ```text
 ANSWER SECTION:
-app.team1.test.    IN    A    10.7.19.2
+app.team1.test.    IN    A    10.7.19.93
 ```
 
 Server should be:
 
 ```text
-SERVER: 10.7.10.246#53
+SERVER: 10.7.9.246#53
 ```
 
 ---
@@ -144,17 +148,17 @@ dns && dns.qry.name == "app.team1.test"
 Generate traffic from Mac 2:
 
 ```bash
-dig @10.7.10.246 app.team1.test
+dig @10.7.9.246 app.team1.test
 ```
 
 Expected packet flow:
 
 ```text
-10.7.19.2 → 10.7.10.246
+10.7.19.93 → 10.7.9.246
 DNS query: A app.team1.test
 
-10.7.10.246 → 10.7.19.2
-DNS response: app.team1.test → 10.7.19.2
+10.7.9.246 → 10.7.19.93
+DNS response: app.team1.test → 10.7.19.93
 ```
 
 ---
@@ -172,7 +176,7 @@ curl --noproxy '*' -v https://app.team1.test:8443/api/status?wireshark=1
 TCP filter:
 
 ```text
-tcp.port == 8443 && ip.addr == 10.7.19.2
+tcp.port == 8443 && ip.addr == 10.7.19.93
 ```
 
 TLS filter:
@@ -184,9 +188,9 @@ tls
 Expected TCP flow:
 
 ```text
-10.7.10.246:EPHEMERAL → 10.7.19.2:8443  SYN
-10.7.19.2:8443 → 10.7.10.246:EPHEMERAL  SYN-ACK
-10.7.10.246:EPHEMERAL → 10.7.19.2:8443  ACK
+10.7.9.246:EPHEMERAL → 10.7.19.93:8443  SYN
+10.7.19.93:8443 → 10.7.9.246:EPHEMERAL  SYN-ACK
+10.7.9.246:EPHEMERAL → 10.7.19.93:8443  ACK
 ```
 
 Then TLS traffic begins.
@@ -198,13 +202,13 @@ Then TLS traffic begins.
 Test nginx:
 
 ```bash
-ping -c 4 10.7.19.2
+ping -c 4 10.7.19.93
 ```
 
 Test Backend Mac:
 
 ```bash
-ping -c 4 10.7.17.41
+ping -c 4 10.7.31.224
 ```
 
 ---

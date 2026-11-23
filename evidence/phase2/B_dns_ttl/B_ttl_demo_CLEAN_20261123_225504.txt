@@ -1,0 +1,59 @@
+Extension B TTL demo — 2026-11-23 22:55:04 IST — Manpreet’s MacBook Pro (10.7.9.246)
+Evidence: /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/06_Phase2/Extension_B_DNS_TTL/B_ttl_demo_run_20261123_225504.txt
+Client-cache query log: /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/06_Phase2/Extension_B_DNS_TTL/B_client_cache_queries_20261123_225504.log
+[22:55:04] ========== SETUP (needs your Mac password once) ==========
+[22:55:38] Primary currently answers ttl.team1.test -> 'nothing'
+[22:55:38] Restarting primary dnsmasq (launchd system/sh.brew.dnsmasq) once to load addn-hosts; backup DNS covers the ~2 s gap
+[22:55:39] Primary serves ttl.team1.test -> 10.7.19.93 (primary dnsmasq pid now 5007)
+[22:55:40] Client caching resolver started (pid 5028), cache is empty
+[22:55:40] PRIMARY DNS  @10.7.9.246:53      -> ttl.team1.test. 30 IN A 10.7.19.93
+[22:55:40] ========== STEP 1 — Client resolves the name (B1: TTL = 30 s, then counting down = served from cache) ==========
+[22:55:40] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 30 IN A 10.7.19.93
+[22:55:44] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 26 IN A 10.7.19.93
+[22:55:48] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 22 IN A 10.7.19.93
+[22:55:48] ========== STEP 2 — Controlled record change: ttl.team1.test 10.7.19.93 -> 10.7.31.224 (B2) ==========
+[22:55:49] ADMIN: record changed on primary -> ttl.team1.test = 10.7.31.224 (edited /opt/homebrew/etc/team1-ttl.hosts, sent SIGHUP to primary dnsmasq)
+[22:55:49] PRIMARY DNS  @10.7.9.246:53      -> ttl.team1.test. 30 IN A 10.7.31.224
+[22:55:49] ========== STEP 3 — Client still receives the OLD cached answer until the TTL expires (B3) ==========
+[22:55:49] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 21 IN A 10.7.19.93   [9s since client cached it]
+[22:55:53] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 17 IN A 10.7.19.93   [13s since client cached it]
+[22:55:57] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 13 IN A 10.7.19.93   [17s since client cached it]
+[22:56:01] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 9 IN A 10.7.19.93   [21s since client cached it]
+[22:56:05] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 5 IN A 10.7.19.93   [25s since client cached it]
+[22:56:09] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 1 IN A 10.7.19.93   [29s since client cached it]
+[22:56:13] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 30 IN A 10.7.31.224   [33s since client cached it]
+[22:56:13] ========== STEP 4 — TTL expired: client re-queried the server and now gets the NEW answer (B4) ==========
+[22:56:13] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 30 IN A 10.7.31.224
+[22:56:13] ========== STEP 5 — Change the record back (10.7.31.224 -> 10.7.19.93). Client cache now holds the stale NEW answer ==========
+[22:56:14] ADMIN: record changed on primary -> ttl.team1.test = 10.7.19.93 (edited /opt/homebrew/etc/team1-ttl.hosts, sent SIGHUP to primary dnsmasq)
+[22:56:14] PRIMARY DNS  @10.7.9.246:53      -> ttl.team1.test. 30 IN A 10.7.19.93
+[22:56:14] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 29 IN A 10.7.31.224
+[22:56:14] ========== STEP 6 — Manually flush the client cache (B5): SIGHUP clears the resolver cache ==========
+[22:56:14] Client cache flushed (kill -HUP 5028)
+[22:56:14] CLIENT CACHE @127.0.0.1:5300 -> ttl.team1.test. 30 IN A 10.7.19.93
+        ^ changed answer visible IMMEDIATELY after flush, without waiting for the TTL
+[22:56:14] ========== CLEANUP ==========
+[22:56:14] Client caching resolver stopped
+[22:56:14] ttl.team1.test left at 10.7.19.93. app.team1.test / api.team1.test were never modified:
+app.team1.test. 30 IN A 10.7.31.224
+api.team1.test. 30 IN A 10.7.19.93
+Client cache log (forwarded = asked the server, cached = answered from cache):
+Nov 23 22:55:40 dnsmasq[5028]: cleared cache
+Nov 23 22:55:40 dnsmasq[5028]: forwarded ttl.team1.test to 10.7.9.246
+Nov 23 22:55:40 dnsmasq[5028]: reply ttl.team1.test is 10.7.19.93
+Nov 23 22:55:44 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:55:48 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:55:49 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:55:53 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:55:57 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:56:01 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:56:05 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:56:09 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:56:13 dnsmasq[5028]: forwarded ttl.team1.test to 10.7.9.246
+Nov 23 22:56:13 dnsmasq[5028]: reply ttl.team1.test is 10.7.31.224
+Nov 23 22:56:13 dnsmasq[5028]: cached ttl.team1.test is 10.7.31.224
+Nov 23 22:56:14 dnsmasq[5028]: cached ttl.team1.test is 10.7.31.224
+Nov 23 22:56:14 dnsmasq[5028]: cleared cache
+Nov 23 22:56:14 dnsmasq[5028]: forwarded ttl.team1.test to 10.7.9.246
+Nov 23 22:56:14 dnsmasq[5028]: reply ttl.team1.test is 10.7.19.93
+DONE. Take the screenshots now (scroll as needed).

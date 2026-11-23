@@ -1,0 +1,44 @@
+Nov 23 23:02:56 dnsmasq[10921]: started, version 2.93 cachesize 150
+Nov 23 23:02:56 dnsmasq[10921]: compile time options: IPv6 GNU-getopt no-DBus no-UBus no-i18n no-IDN DHCP DHCPv6 no-Lua TFTP no-conntrack no-ipset no-nftset auth no-DNSSEC loop-detect no-inotify dumpfile
+Nov 23 23:02:56 dnsmasq[10921]: warning: failed to change owner of /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/06_Phase2/Extension_E_Edge_Migration/E_existing_client_cache_20261123_230219.log: Operation not permitted
+Nov 23 23:02:56 dnsmasq[10921]: using nameserver 10.7.9.246#53 for domain team1.test 
+Nov 23 23:02:56 dnsmasq[10921]: cleared cache
+Nov 23 23:02:57 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:02:57 dnsmasq[10921]: forwarded app.team1.test to 10.7.9.246
+Nov 23 23:02:57 dnsmasq[10921]: reply app.team1.test is 10.7.19.93
+Nov 23 23:02:57 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:02:57 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:00 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:00 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:00 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:00 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:05 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:05 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:05 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:05 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:10 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:10 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:10 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:10 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:16 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:16 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:16 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:16 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:21 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:21 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:21 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:21 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:26 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:26 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:26 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:26 dnsmasq[10921]: cached app.team1.test is 10.7.19.93
+Nov 23 23:03:31 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:31 dnsmasq[10921]: forwarded app.team1.test to 10.7.9.246
+Nov 23 23:03:31 dnsmasq[10921]: reply app.team1.test is 10.7.31.224
+Nov 23 23:03:31 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:31 dnsmasq[10921]: cached app.team1.test is 10.7.31.224
+Nov 23 23:03:31 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:31 dnsmasq[10921]: cached app.team1.test is 10.7.31.224
+Nov 23 23:03:31 dnsmasq[10921]: query[A] app.team1.test from 127.0.0.1
+Nov 23 23:03:31 dnsmasq[10921]: cached app.team1.test is 10.7.31.224
+Nov 23 23:03:32 dnsmasq[10921]: exiting on receipt of SIGTERM

@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start:a": "node backend-a/server.js",
+    "start:b": "node backend-b/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Two minimal Express REST backends (A on :3001, B on :3002) for the CN Private Network Service Platform",
   "dependencies": {
     "express": "^5.2.1"
   }

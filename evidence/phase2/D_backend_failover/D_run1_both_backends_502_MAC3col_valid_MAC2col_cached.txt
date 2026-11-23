@@ -1,0 +1,103 @@
+NOTE (added 23:11): In this first run the Mac 2 column is INVALID — the monitor reused one URL (zsh $RANDOM in a subshell), so
+Mac 2's proxy cache (proxy_cache_valid 200 60s) answered. The Mac 3 column (standby edge, no cache) is valid. From 23:09:24 both
+columns show the real 502 (cache entry expired). Mac 3 timeline: A stopped 23:08:25, B stopped 23:09:05, both restarted 23:09:35.
+
+Failover monitor — 2026-11-23 23:07:18 IST — Mac 1 (10.7.9.246) — output: /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/06_Phase2/Extension_D_Backend_Failover/D_failover_timeline_20261123_230718.txt
+time      | via Mac 2 edge (10.7.19.93) | via Mac 3 edge (10.7.31.224)
+23:07:19  | HTTP 200  backend A          | HTTP 200  backend B  
+23:07:21  | HTTP 200  backend A          | HTTP 200  backend A  
+23:07:23  | HTTP 200  backend A          | HTTP 200  backend B  
+23:07:25  | HTTP 200  backend A          | HTTP 200  backend A  
+23:07:27  | HTTP 200  backend A          | HTTP 200  backend B  
+23:07:30  | HTTP 200  backend A          | HTTP 200  backend A  
+23:07:32  | HTTP 200  backend A          | HTTP 200  backend B  
+23:07:34  | HTTP 200  backend A          | HTTP 200  backend A  
+23:07:36  | HTTP 200  backend A          | HTTP 200  backend B  
+23:07:38  | HTTP 200  backend A          | HTTP 200  backend A  
+23:07:40  | HTTP 200  backend A          | HTTP 200  backend B  
+23:07:43  | HTTP 200  backend A          | HTTP 200  backend A  
+23:07:45  | HTTP 200  backend A          | HTTP 200  backend B  
+23:07:47  | HTTP 200  backend A          | HTTP 200  backend A  
+23:07:49  | HTTP 200  backend A          | HTTP 200  backend B  
+23:07:51  | HTTP 200  backend A          | HTTP 200  backend A  
+23:07:53  | HTTP 200  backend A          | HTTP 200  backend B  
+23:07:55  | HTTP 200  backend A          | HTTP 200  backend A  
+23:07:58  | HTTP 200  backend A          | HTTP 200  backend B  
+23:08:00  | HTTP 200  backend A          | HTTP 200  backend A  
+23:08:03  | HTTP 200  backend A          | HTTP 200  backend B  
+23:08:05  | HTTP 200  backend A          | HTTP 200  backend A  
+23:08:07  | HTTP 200  backend A          | HTTP 200  backend B  
+23:08:10  | HTTP 200  backend A          | HTTP 200  backend A  
+23:08:12  | HTTP 200  backend A          | HTTP 200  backend B  
+23:08:14  | HTTP 200  backend A          | HTTP 200  backend A  
+23:08:16  | HTTP 200  backend A          | HTTP 200  backend A  
+23:08:19  | HTTP 200  backend A          | HTTP 200  backend B  
+23:08:21  | HTTP 200  backend B          | HTTP 200  backend A  
+23:08:23  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:25  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:27  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:30  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:32  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:34  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:36  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:39  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:42  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:44  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:46  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:48  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:50  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:52  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:54  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:57  | HTTP 200  backend B          | HTTP 200  backend B  
+23:08:59  | HTTP 200  backend B          | HTTP 200  backend B  
+23:09:01  | HTTP 200  backend B          | HTTP 200  backend B  
+23:09:03  | HTTP 200  backend B          | HTTP 200  backend B  
+23:09:05  | HTTP 200  backend B          | HTTP 502  backend -  
+23:09:07  | HTTP 200  backend B          | HTTP 502  backend -  
+23:09:10  | HTTP 200  backend B          | HTTP 502  backend -  
+23:09:12  | HTTP 200  backend B          | HTTP 502  backend -  
+23:09:14  | HTTP 200  backend B          | HTTP 502  backend -  
+23:09:16  | HTTP 200  backend B          | HTTP 502  backend -  
+23:09:18  | HTTP 200  backend B          | HTTP 502  backend -  
+23:09:20  | HTTP 200  backend B          | HTTP 502  backend -  
+23:09:24  | HTTP 502  backend -          | HTTP 502  backend -  
+23:09:27  | HTTP 502  backend -          | HTTP 502  backend -  
+23:09:31  | HTTP 502  backend -          | HTTP 502  backend -  
+23:09:33  | HTTP 502  backend -          | HTTP 502  backend -  
+23:09:35  | HTTP 502  backend -          | HTTP 502  backend -  
+23:09:37  | HTTP 200  backend B          | HTTP 200  backend A  
+23:09:39  | HTTP 200  backend B          | HTTP 200  backend A  
+23:09:42  | HTTP 200  backend B          | HTTP 200  backend B  
+23:09:44  | HTTP 200  backend B          | HTTP 200  backend A  
+23:09:46  | HTTP 200  backend B          | HTTP 200  backend B  
+23:09:49  | HTTP 200  backend B          | HTTP 200  backend A  
+23:09:51  | HTTP 200  backend B          | HTTP 200  backend A  
+23:09:54  | HTTP 200  backend B          | HTTP 200  backend B  
+23:09:56  | HTTP 200  backend B          | HTTP 200  backend A  
+23:09:58  | HTTP 200  backend B          | HTTP 200  backend B  
+23:10:00  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:02  | HTTP 200  backend B          | HTTP 200  backend B  
+23:10:05  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:07  | HTTP 200  backend B          | HTTP 200  backend B  
+23:10:09  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:11  | HTTP 200  backend B          | HTTP 200  backend B  
+23:10:13  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:15  | HTTP 200  backend B          | HTTP 200  backend B  
+23:10:17  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:20  | HTTP 200  backend B          | HTTP 200  backend B  
+23:10:22  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:24  | HTTP 200  backend B          | HTTP 200  backend B  
+23:10:26  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:28  | HTTP 200  backend B          | HTTP 200  backend B  
+23:10:30  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:33  | HTTP 200  backend B          | HTTP 200  backend B  
+23:10:35  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:37  | HTTP 200  backend B          | HTTP 200  backend A  
+23:10:39  | HTTP 200  backend A          | HTTP 200  backend B  
+23:10:41  | HTTP 200  backend A          | HTTP 200  backend A  
+23:10:43  | HTTP 200  backend A          | HTTP 200  backend A  
+23:10:45  | HTTP 200  backend A          | HTTP 200  backend B  
+Recovered: Backend A serving again after the outage.
+Monitor finished 23:10:45
+Recovered: Backend A serving again after the outage.
+/Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/tools/failover_monitor.sh:break:26: not in while, until, select, or repeat loop

@@ -1,0 +1,36 @@
+Nov 23 22:55:40 dnsmasq[5028]: started, version 2.93 cachesize 150
+Nov 23 22:55:40 dnsmasq[5028]: compile time options: IPv6 GNU-getopt no-DBus no-UBus no-i18n no-IDN DHCP DHCPv6 no-Lua TFTP no-conntrack no-ipset no-nftset auth no-DNSSEC loop-detect no-inotify dumpfile
+Nov 23 22:55:40 dnsmasq[5028]: warning: failed to change owner of /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/06_Phase2/Extension_B_DNS_TTL/B_client_cache_queries_20261123_225504.log: Operation not permitted
+Nov 23 22:55:40 dnsmasq[5028]: using nameserver 10.7.9.246#53 for domain team1.test 
+Nov 23 22:55:40 dnsmasq[5028]: cleared cache
+Nov 23 22:55:40 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:55:40 dnsmasq[5028]: forwarded ttl.team1.test to 10.7.9.246
+Nov 23 22:55:40 dnsmasq[5028]: reply ttl.team1.test is 10.7.19.93
+Nov 23 22:55:44 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:55:44 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:55:48 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:55:48 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:55:49 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:55:49 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:55:53 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:55:53 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:55:57 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:55:57 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:56:01 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:56:01 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:56:05 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:56:05 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:56:09 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:56:09 dnsmasq[5028]: cached ttl.team1.test is 10.7.19.93
+Nov 23 22:56:13 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:56:13 dnsmasq[5028]: forwarded ttl.team1.test to 10.7.9.246
+Nov 23 22:56:13 dnsmasq[5028]: reply ttl.team1.test is 10.7.31.224
+Nov 23 22:56:13 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:56:13 dnsmasq[5028]: cached ttl.team1.test is 10.7.31.224
+Nov 23 22:56:14 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:56:14 dnsmasq[5028]: cached ttl.team1.test is 10.7.31.224
+Nov 23 22:56:14 dnsmasq[5028]: cleared cache
+Nov 23 22:56:14 dnsmasq[5028]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:56:14 dnsmasq[5028]: forwarded ttl.team1.test to 10.7.9.246
+Nov 23 22:56:14 dnsmasq[5028]: reply ttl.team1.test is 10.7.19.93
+Nov 23 22:56:14 dnsmasq[5028]: exiting on receipt of SIGTERM

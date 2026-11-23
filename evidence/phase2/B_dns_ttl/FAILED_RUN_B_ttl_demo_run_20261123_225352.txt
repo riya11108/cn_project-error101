@@ -1,0 +1,125 @@
+Extension B TTL demo — 2026-11-23 22:53:52 IST — Manpreet’s MacBook Pro (10.7.9.246)
+Evidence: /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/06_Phase2/Extension_B_DNS_TTL/B_ttl_demo_run_20261123_225352.txt
+Client-cache query log: /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/06_Phase2/Extension_B_DNS_TTL/B_client_cache_queries_20261123_225352.log
+
+[22:53:52] ========== SETUP (needs your Mac password once) ==========
+[22:53:59] Client caching resolver started (pid 3843), cache is empty
+[22:53:59] PRIMARY DNS  @10.7.9.246:53      -> 
+; <<>> DiG 9.10.6 <<>> @10.7.9.246 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+
+[22:53:59] ========== STEP 1 — Client resolves the name (B1: TTL = 30 s, then counting down = served from cache) ==========
+[22:53:59] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+[22:54:03] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+[22:54:07] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+
+[22:54:07] ========== STEP 2 — Controlled record change: ttl.team1.test 10.7.19.93 -> 10.7.31.224 (B2) ==========
+[22:54:07] ADMIN: record changed on primary -> ttl.team1.test = 10.7.31.224 (edited /opt/homebrew/etc/team1-ttl.hosts, sent SIGHUP to primary dnsmasq)
+[22:54:07] PRIMARY DNS  @10.7.9.246:53      -> 
+; <<>> DiG 9.10.6 <<>> @10.7.9.246 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+
+[22:54:07] ========== STEP 3 — Client still receives the OLD cached answer until the TTL expires (B3) ==========
+[22:54:07] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd   [8s since client cached it]
+[22:54:12] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd   [13s since client cached it]
+[22:54:16] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd   [17s since client cached it]
+[22:54:20] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached   [23s since client cached it]
+[22:54:26] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached   [29s since client cached it]
+[22:54:32] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached   [35s since client cached it]
+[22:54:38] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached   [41s since client cached it]
+[22:54:44] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached   [47s since client cached it]
+Did not change within 45 s — unexpected
+
+[22:54:46] ========== STEP 4 — TTL expired: client re-queried the server and now gets the NEW answer (B4) ==========
+[22:54:46] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached
+
+[22:54:48] ========== STEP 5 — Change the record back (10.7.31.224 -> 10.7.19.93). Client cache now holds the stale NEW answer ==========
+[22:54:48] ADMIN: record changed on primary -> ttl.team1.test = 10.7.19.93 (edited /opt/homebrew/etc/team1-ttl.hosts, sent SIGHUP to primary dnsmasq)
+[22:54:48] PRIMARY DNS  @10.7.9.246:53      -> 
+; <<>> DiG 9.10.6 <<>> @10.7.9.246 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+[22:54:48] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached
+
+[22:54:51] ========== STEP 6 — Manually flush the client cache (B5): SIGHUP clears the resolver cache ==========
+CN_Project_Evidence/tools/ttl_demo.sh:kill:95: kill 3843 failed: no such process
+[22:54:51] Client cache flushed (kill -HUP 3843)
+[22:54:51] CLIENT CACHE @127.0.0.1:5300 -> 
+; <<>> DiG 9.10.6 <<>> @127.0.0.1 -p 5300 ttl.team1.test +noall +answer +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached
+        ^ changed answer visible IMMEDIATELY after flush, without waiting for the TTL
+
+[22:54:54] ========== CLEANUP ==========
+[22:54:54] ttl.team1.test left at 10.7.19.93. app.team1.test / api.team1.test were never modified:
+        
+; <<>> DiG 9.10.6 <<>> @10.7.9.246 app.team1.test +noall +answer
+; (1 server found)
+;; global options: +cmd
+app.team1.test. 30 IN A 10.7.31.224
+        
+; <<>> DiG 9.10.6 <<>> @10.7.9.246 api.team1.test +noall +answer
+; (1 server found)
+;; global options: +cmd
+api.team1.test. 30 IN A 10.7.19.93
+
+Client cache log (forwarded = asked the server, cached = answered from cache):
+Nov 23 22:53:58 dnsmasq[3843]: cleared cache
+Nov 23 22:53:59 dnsmasq[3843]: forwarded ttl.team1.test to 10.7.9.246
+Nov 23 22:53:59 dnsmasq[3843]: reply ttl.team1.test is NXDOMAIN
+Nov 23 22:54:03 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+Nov 23 22:54:07 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+Nov 23 22:54:07 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+Nov 23 22:54:12 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+Nov 23 22:54:16 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+
+DONE. Take the screenshots now (scroll as needed).

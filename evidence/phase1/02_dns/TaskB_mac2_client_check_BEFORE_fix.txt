@@ -1,0 +1,20 @@
+Mac 2 (Avneet, 10.7.19.93) as a DNS/HTTPS client — BEFORE fix. Read-only check by Avneet's Claude session, ~23:27 IST 2026-11-23.
+Finding: Wi-Fi DNS still points to Mac 1's OLD Phase 1 address 10.7.10.246 (DHCP later gave Mac 1 10.7.9.246) → no answer,
+then 8.8.8.8 (which cannot know .test) → app.team1.test does not resolve; HTTPS by name fails (curl exit 6). mkcert CA is trusted.
+
+--- resolver config
+10.7.10.246
+8.8.8.8
+ls: /etc/resolver: No such file or directory
+--- system lookup (what apps/browsers use)
+(no output for app.team1.test or api.team1.test)
+--- direct to team DNS servers
+dig @10.7.9.246 app.team1.test +short   -> 10.7.31.224
+dig @10.7.31.224 app.team1.test +short  -> 10.7.31.224
+--- HTTPS by name, NO -k
+curl: (6) Could not resolve host: app.team1.test   (exit=6)
+--- mkcert CA in System keychain
+    "alis"<blob>="mkcert avneet@avneets-macbook-air.local (avneet singh)"
+    "labl"<blob>="mkcert avneet@Avneets-MacBook-Air.local (Avneet Singh)"
+--- extra: dig @10.7.10.246 app.team1.test +short +time=2 +tries=1
+(no answer — that IP is no longer a DNS server)

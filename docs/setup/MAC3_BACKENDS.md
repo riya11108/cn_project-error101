@@ -1,7 +1,11 @@
 # Mac 3 — Backend A + Backend B Commands
 
+> **Phase 1 setup guide** (IPs updated to the current LAN: Mac 1 10.7.9.246, Mac 2 10.7.19.93, Mac 3 10.7.31.224).
+> The exact configuration running at the end of Phase 2 is in `configs/mac3-backup-dns/, configs/mac3-standby-edge/, configs/mac3-firewall/`.
+> Phase 2 changes and results: `docs/Phase2_Final_Report.md`.
+
 **Role:** Backend server  
-**IP:** `10.7.17.41`  
+**IP:** `10.7.31.224`  
 **Interface:** `en0`
 
 **Backend A:** `3001`  
@@ -18,7 +22,7 @@ ipconfig getifaddr en0
 Expected:
 
 ```text
-10.7.17.41
+10.7.31.224
 ```
 
 ---
@@ -37,7 +41,7 @@ npm -v
 Backend A must listen on:
 
 ```text
-10.7.17.41:3001
+10.7.31.224:3001
 ```
 
 From the Backend A project directory, run the project's normal start command.
@@ -45,13 +49,13 @@ From the Backend A project directory, run the project's normal start command.
 If the project uses npm:
 
 ```bash
-npm start
+cd backend && npm run start:a     # = node backend-a/server.js
 ```
 
 Expected API:
 
 ```text
-http://10.7.17.41:3001/api/status
+http://10.7.31.224:3001/api/status
 ```
 
 ---
@@ -61,19 +65,19 @@ http://10.7.17.41:3001/api/status
 Backend B must listen on:
 
 ```text
-10.7.17.41:3002
+10.7.31.224:3002
 ```
 
 From the Backend B project directory, run:
 
 ```bash
-npm start
+cd backend && npm run start:b     # = node backend-b/server.js
 ```
 
 Expected API:
 
 ```text
-http://10.7.17.41:3002/api/status
+http://10.7.31.224:3002/api/status
 ```
 
 > If Backend A and Backend B are separate projects, run each in its own terminal. Do not run both in the same terminal if the first process blocks the shell.
@@ -83,7 +87,7 @@ http://10.7.17.41:3002/api/status
 # 5. Test Backend A
 
 ```bash
-curl -v --max-time 5 http://10.7.17.41:3001/api/status
+curl -v --max-time 5 http://10.7.31.224:3001/api/status
 ```
 
 Expected:
@@ -106,7 +110,7 @@ Response:
 # 6. Test Backend B
 
 ```bash
-curl -v --max-time 5 http://10.7.17.41:3002/api/status
+curl -v --max-time 5 http://10.7.31.224:3002/api/status
 ```
 
 Expected:
@@ -147,13 +151,13 @@ Both ports should have a listening process.
 From Mac 2:
 
 ```bash
-curl http://10.7.17.41:3001/api/status
+curl http://10.7.31.224:3001/api/status
 ```
 
 and:
 
 ```bash
-curl http://10.7.17.41:3002/api/status
+curl http://10.7.31.224:3002/api/status
 ```
 
 Expected:
@@ -289,7 +293,7 @@ Return to the Backend B project directory.
 Start it again using the normal project command:
 
 ```bash
-npm start
+cd backend && npm run start:b
 ```
 
 ---
@@ -357,7 +361,7 @@ curl http://localhost:3002/api/status
 Check Mac 2 connectivity:
 
 ```bash
-ping -c 4 10.7.19.2
+ping -c 4 10.7.19.93
 ```
 
 ---

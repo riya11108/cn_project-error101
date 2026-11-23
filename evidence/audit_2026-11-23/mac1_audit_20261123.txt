@@ -1,0 +1,147 @@
+==================================================================
+Time    : 2026-11-23 22:17:50 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : ipconfig getifaddr en0; ifconfig en0 | grep -E "inet |ether"; route -n get default | grep -E "gateway|interface"
+------------------------------------------------------------------
+10.7.9.246
+	ether 36:b5:ac:b7:11:00
+	inet 10.7.9.246 netmask 0xffffe000 broadcast 10.7.31.255
+    gateway: 10.7.0.1
+  interface: en0
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:17:50 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : grep -nE "^\s*[^#[:space:]]" /opt/homebrew/etc/dnsmasq.conf
+------------------------------------------------------------------
+1:port=53
+3:listen-address=127.0.0.1,10.7.9.246
+4:bind-interfaces
+6:address=/app.team1.test/10.7.31.224
+7:address=/api.team1.test/10.7.19.93
+8:local-ttl=30
+10:log-queries
+11:log-facility=/tmp/dnsmasq.log
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:17:50 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : pgrep -fl dnsmasq; netstat -an -p udp | grep "\.53 "
+------------------------------------------------------------------
+78205 /opt/homebrew/opt/dnsmasq/sbin/dnsmasq --keep-in-foreground -C /opt/homebrew/etc/dnsmasq.conf -7 /opt/homebrew/etc/dnsmasq.d,*.conf
+udp4       0      0  127.0.0.1.53           *.*                               
+udp4       0      0  10.7.9.246.53          *.*                               
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:17:50 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : dig @10.7.9.246 app.team1.test +noall +answer +stats; dig @10.7.9.246 api.team1.test +noall +answer
+------------------------------------------------------------------
+
+; <<>> DiG 9.10.6 <<>> @10.7.9.246 app.team1.test +noall +answer +stats
+; (1 server found)
+;; global options: +cmd
+app.team1.test.		30	IN	A	10.7.31.224
+;; Query time: 13 msec
+;; SERVER: 10.7.9.246#53(10.7.9.246)
+;; WHEN: Mon Nov 23 22:17:50 IST 2026
+;; MSG SIZE  rcvd: 59
+
+
+; <<>> DiG 9.10.6 <<>> @10.7.9.246 api.team1.test +noall +answer
+; (1 server found)
+;; global options: +cmd
+api.team1.test.		30	IN	A	10.7.19.93
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:17:50 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : for ip in 10.7.19.93 10.7.31.224; do ping -c2 -t3 $ip; done; arp -an | grep 10.7.
+------------------------------------------------------------------
+PING 10.7.19.93 (10.7.19.93): 56 data bytes
+64 bytes from 10.7.19.93: icmp_seq=0 ttl=64 time=210.683 ms
+64 bytes from 10.7.19.93: icmp_seq=1 ttl=64 time=12.523 ms
+
+--- 10.7.19.93 ping statistics ---
+2 packets transmitted, 2 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 12.523/111.603/210.683/99.080 ms
+PING 10.7.31.224 (10.7.31.224): 56 data bytes
+64 bytes from 10.7.31.224: icmp_seq=0 ttl=32 time=893.305 ms
+64 bytes from 10.7.31.224: icmp_seq=1 ttl=32 time=805.380 ms
+
+--- 10.7.31.224 ping statistics ---
+2 packets transmitted, 2 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 805.380/849.342/893.305/43.963 ms
+? (10.7.19.93) at 2e:30:b:a1:32:2a on en0 ifscope [ethernet]
+? (10.7.31.224) at 46:b2:52:34:a6:e0 on en0 ifscope [ethernet]
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:18:10 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : dig @10.7.31.224 app.team1.test +noall +answer +stats | grep -E "IN|SERVER"; dig @10.7.31.224 api.team1.test +short
+------------------------------------------------------------------
+
+; <<>> DiG 9.10.6 <<>> @10.7.31.224 api.team1.test +short
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached
+[exit code: 9]
+
+==================================================================
+Time    : 2026-11-23 22:18:40 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : for h in 10.7.19.93 10.7.31.224; do for p in 8443 8080 3001 3002 53; do nc -z -G3 $h $p 2>/dev/null && echo "$h:$p OPEN" || echo "$h:$p closed/filtered"; done; done
+------------------------------------------------------------------
+10.7.19.93:8443 OPEN
+10.7.19.93:8080 OPEN
+10.7.19.93:3001 closed/filtered
+10.7.19.93:3002 closed/filtered
+10.7.19.93:53 OPEN
+10.7.31.224:8443 closed/filtered
+10.7.31.224:8080 closed/filtered
+10.7.31.224:3001 closed/filtered
+10.7.31.224:3002 closed/filtered
+10.7.31.224:53 closed/filtered
+[exit code: 0]
+
+==================================================================
+Time    : 2026-11-23 22:18:57 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : for ip in 10.7.19.93 10.7.31.224; do echo "--- edge $ip"; curl -s -o /dev/null -w "HTTP %{http_code} via %{remote_ip}:%{remote_port} ssl_verify=%{ssl_verify_result}
+" --max-time 5 --resolve app.team1.test:8443:$ip "https://app.team1.test:8443/api/status?audit=$RANDOM" ; curl -sI --max-time 5 --resolve app.team1.test:8443:$ip "https://app.team1.test:8443/api/status?audit2=$RANDOM" | grep -iE "^(HTTP|x-backend|x-cache|x-edge|server|cache-control|etag)"; done
+------------------------------------------------------------------
+--- edge 10.7.19.93
+HTTP 000 via 10.7.19.93:8443 ssl_verify=0
+--- edge 10.7.31.224
+HTTP 000 via :0 ssl_verify=0
+[exit code: 1]
+
+==================================================================
+Time    : 2026-11-23 22:19:25 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : curl -sv --max-time 25 --resolve app.team1.test:8443:10.7.19.93 "https://app.team1.test:8443/api/status?audit3=$RANDOM" 2>&1 | grep -E "Connected|SSL connection|verify|subject|subjectAltName|^< HTTP|^< [Xx]-|timed out|^\{|<html|<title"; dig @10.7.19.93 app.team1.test +short +time=2 +tries=1
+------------------------------------------------------------------
+* Connected to app.team1.test (10.7.19.93) port 8443
+{ [122 bytes data]
+{ [53 bytes data]
+{ [1149 bytes data]
+* (304) (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+{ [36 bytes data]
+* SSL connection using TLSv1.3 / AEAD-CHACHA20-POLY1305-SHA256 / [blank] / UNDEF
+*  subject: O=mkcert development certificate; OU=avneet@Avneets-MacBook-Air.local (Avneet Singh)
+*  subjectAltName: host "app.team1.test" matched cert's "app.team1.test"
+*  SSL certificate verify ok.
+* Operation timed out after 25002 milliseconds with 0 bytes received
+
+; <<>> DiG 9.10.6 <<>> @10.7.19.93 app.team1.test +short +time=2 +tries=1
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached
+[exit code: 9]
+

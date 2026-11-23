@@ -1,2 +1,11 @@
 node_modules/
 .DS_Store
+# Never commit TLS private keys / CA keys / secrets
+*-key.pem
+*.key
+rootCA-key.pem
+.env
+.env.local
+
+# Internal team notes (viva prep, work log, demo runbook) — kept locally, not part of the submission
+team-notes/

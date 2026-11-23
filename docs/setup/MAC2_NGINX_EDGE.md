@@ -1,7 +1,11 @@
 # Mac 2 — nginx + HTTPS + Load Balancer + Cache Commands
 
+> **Phase 1 setup guide** (IPs updated to the current LAN: Mac 1 10.7.9.246, Mac 2 10.7.19.93, Mac 3 10.7.31.224).
+> The exact configuration running at the end of Phase 2 is in `configs/mac2-main-edge/nginx.conf`.
+> Phase 2 changes and results: `docs/Phase2_Final_Report.md`.
+
 **Role:** Edge server / nginx / HTTPS / load balancing / caching  
-**IP:** `10.7.19.2`  
+**IP:** `10.7.19.93`  
 **Interface:** `en0`  
 **HTTP:** `8080`  
 **HTTPS:** `8443`
@@ -17,7 +21,7 @@ ipconfig getifaddr en0
 Expected:
 
 ```text
-10.7.19.2
+10.7.19.93
 ```
 
 ---
@@ -54,8 +58,8 @@ nano /opt/homebrew/etc/nginx/nginx.conf
 
 ```nginx
 upstream backend_servers {
-    server 10.7.17.41:3001;
-    server 10.7.17.41:3002;
+    server 10.7.31.224:3001;
+    server 10.7.31.224:3002;
 }
 ```
 
@@ -240,13 +244,13 @@ X-Cache-Status: HIT
 Backend A:
 
 ```bash
-curl -v --max-time 5 http://10.7.17.41:3001/api/status
+curl -v --max-time 5 http://10.7.31.224:3001/api/status
 ```
 
 Backend B:
 
 ```bash
-curl -v --max-time 5 http://10.7.17.41:3002/api/status
+curl -v --max-time 5 http://10.7.31.224:3002/api/status
 ```
 
 Expected:

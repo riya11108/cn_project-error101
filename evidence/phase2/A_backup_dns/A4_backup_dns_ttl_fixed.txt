@@ -1,0 +1,11 @@
+==================================================================
+Time    : 2026-11-23 22:51:40 IST
+Machine : Manpreet’s MacBook Pro (10.7.9.246)
+Command : for s in 10.7.9.246 10.7.31.224; do for n in app.team1.test api.team1.test; do printf "server %-12s " $s; dig @$s $n +noall +answer +time=2 +tries=1 | grep -E "IN\s+A" || echo "$n NO ANSWER"; done; done
+------------------------------------------------------------------
+server 10.7.9.246   app.team1.test.		30	IN	A	10.7.31.224
+server 10.7.9.246   api.team1.test.		30	IN	A	10.7.19.93
+server 10.7.31.224  app.team1.test.		30	IN	A	10.7.31.224
+server 10.7.31.224  api.team1.test.		30	IN	A	10.7.19.93
+[exit code: 0]
+

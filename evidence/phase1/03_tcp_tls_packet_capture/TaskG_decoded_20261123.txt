@@ -1,0 +1,44 @@
+Decoded capture TaskG_full_request_20261123_230554.pcapng (Mac 1 client 10.7.9.246, captured 2026-11-23 23:06 on en0+lo0)
+=== DNS
+    1   0.000000   10.7.9.246 → 10.7.9.246   DNS 64 Standard query 0x0518 AAAA app.team1.test
+    2   0.000033   10.7.9.246 → 10.7.9.246   DNS 64 Standard query 0x0518 AAAA app.team1.test
+    3   0.014198   10.7.9.246 → 10.7.9.246   DNS 139 Standard query response 0x0518 AAAA app.team1.test SOA a.root-servers.net
+    4   0.014227   10.7.9.246 → 10.7.9.246   DNS 139 Standard query response 0x0518 AAAA app.team1.test SOA a.root-servers.net
+    5   0.017553   10.7.9.246 → 10.7.9.246   DNS 64 Standard query 0x41ac A app.team1.test
+    6   0.017580   10.7.9.246 → 10.7.9.246   DNS 64 Standard query 0x41ac A app.team1.test
+    7   0.020514   10.7.9.246 → 10.7.9.246   DNS 80 Standard query response 0x41ac A app.team1.test A 10.7.31.224
+    8   0.020541   10.7.9.246 → 10.7.9.246   DNS 80 Standard query response 0x41ac A app.team1.test A 10.7.31.224
+    9   0.044678   10.7.9.246 → 10.7.31.224  DNS 85 Standard query 0x9fe7 A app.team1.test OPT
+   10   0.061567  10.7.31.224 → 10.7.9.246   DNS 101 Standard query response 0x9fe7 A app.team1.test A 10.7.31.224 OPT
+=== TCP + TLS on 8443
+   11   0.103543   10.7.9.246 → 10.7.31.224  TCP 78 50627 → 8443 [SYN, ECE, CWR] Seq=0 Win=65535 Len=0 MSS=1460 WS=64 TSval=2538791549 TSecr=0 SACK_PERM
+   12   0.110002  10.7.31.224 → 10.7.9.246   TCP 78 8443 → 50627 [SYN, ACK, ECE] Seq=0 Ack=1 Win=14480 Len=0 MSS=1460 WS=64 TSval=4232147697 TSecr=2538791549 SACK_PERM
+   13   0.110101   10.7.9.246 → 10.7.31.224  TCP 66 50627 → 8443 [ACK] Seq=1 Ack=1 Win=14528 Len=0 TSval=2538791556 TSecr=4232147697
+   14   0.111417   10.7.9.246 → 10.7.31.224  TLSv1 390 Client Hello (SNI=app.team1.test)
+   15   0.116532  10.7.31.224 → 10.7.9.246   TCP 66 8443 → 50627 [ACK] Seq=1 Ack=325 Win=14528 Len=0 TSval=4232147705 TSecr=2538791557
+   16   0.121066  10.7.31.224 → 10.7.9.246   TLSv1.3 1514 Server Hello, Change Cipher Spec, Application Data, Application Data
+   17   0.121067  10.7.31.224 → 10.7.9.246   TLSv1.3 341 Application Data, Application Data
+   18   0.121150   10.7.9.246 → 10.7.31.224  TCP 66 50627 → 8443 [ACK] Seq=325 Ack=1724 Win=14528 Len=0 TSval=2538791567 TSecr=4232147709
+   19   0.147830   10.7.9.246 → 10.7.31.224  TLSv1.3 72 Change Cipher Spec
+   20   0.147873   10.7.9.246 → 10.7.31.224  TLSv1.3 124 Application Data
+   21   0.148181   10.7.9.246 → 10.7.31.224  TLSv1.3 191 Application Data
+   22   0.164384  10.7.31.224 → 10.7.9.246   TCP 66 8443 → 50627 [ACK] Seq=1724 Ack=514 Win=14528 Len=0 TSval=4232147744 TSecr=2538791594
+   23   0.164385  10.7.31.224 → 10.7.9.246   TLSv1.3 372 Application Data
+   24   0.164560   10.7.9.246 → 10.7.31.224  TCP 66 50627 → 8443 [ACK] Seq=514 Ack=2030 Win=14528 Len=0 TSval=2538791610 TSecr=4232147749
+   25   0.164945   10.7.9.246 → 10.7.31.224  TLSv1.3 90 Application Data
+   26   0.165416   10.7.9.246 → 10.7.31.224  TCP 66 50627 → 8443 [FIN, ACK] Seq=538 Ack=2030 Win=14528 Len=0 TSval=2538791611 TSecr=4232147749
+   27   0.173667  10.7.31.224 → 10.7.9.246   TCP 66 8443 → 50627 [ACK] Seq=2030 Ack=538 Win=14528 Len=0 TSval=4232147760 TSecr=2538791611
+   28   0.173668  10.7.31.224 → 10.7.9.246   TCP 66 8443 → 50627 [ACK] Seq=2030 Ack=539 Win=14528 Len=0 TSval=4232147760 TSecr=2538791611
+   29   0.173668  10.7.31.224 → 10.7.9.246   TCP 56 8443 → 50627 [RST, ACK] Seq=2030 Ack=539 Win=14528 Len=0
+=== TLS Client Hello details
+Internet Protocol Version 4, Src: 10.7.9.246, Dst: 10.7.31.224
+        Version: TLS 1.0 (0x0301)
+            Version: TLS 1.2 (0x0303)
+                [Expert Info (Chat/Deprecated): This legacy_version field MUST be ignored. The supported_versions extension is present and MUST be used instead.]
+                    [This legacy_version field MUST be ignored. The supported_versions extension is present and MUST be used instead.]
+            Cipher Suites (49 suites)
+            Extension: supported_versions (len=9) TLS 1.3, TLS 1.2, TLS 1.1, TLS 1.0
+                Type: supported_versions (43)
+=== TLS Server Hello details
+            Cipher Suite: TLS_CHACHA20_POLY1305_SHA256 (0x1303)
+                Supported Version: TLS 1.3 (0x0304)

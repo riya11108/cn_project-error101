@@ -1,0 +1,56 @@
+==================================================================
+Mac 3 audit — Riya's MacBook Pro (10.7.31.224)
+Collected 2026-11-23 ~22:40 IST by the Claude session on Mac 3 (Remote Control),
+relayed to the Mac 1 session. Read-only; nothing was changed.
+==================================================================
+=== 1: identity
+Riya's MacBook Pro (5)
+10.7.31.224
+	inet 10.7.31.224 netmask 0xffffe000 broadcast 10.7.31.255
+	status: active
+=== 2: TCP listeners (user-visible)
+node      32930 riyayadav   18u  IPv4 0xb6c4cbb4d3cf2db7      0t0  TCP *:3002 (LISTEN)
+node      34377 riyayadav   18u  IPv4 0x5bb44a84925499cf      0t0  TCP *:3001 (LISTEN)
+nginx     37554 riyayadav    6u  IPv4 0xfbce2c4f62253913      0t0  TCP *:8443 (LISTEN)
+nginx     37555 riyayadav    6u  IPv4 0xfbce2c4f62253913      0t0  TCP *:8443 (LISTEN)
+=== 3: lsof -iUDP:53
+(empty — dnsmasq runs as root/nobody, socket not visible to a normal user)
+=== 4: processes (unrelated VS Code / Claude node helpers omitted)
+32930 node server.js
+34377 node server.js
+37554 nginx: master process /opt/homebrew/bin/nginx -p /Users/riyayadav/cn-project/standby-nginx/ -c nginx.conf
+37555 nginx: worker process
+37750 /opt/homebrew/opt/dnsmasq/sbin/dnsmasq --keep-in-foreground -C /opt/homebrew/etc/dnsmasq.conf -7 /opt/homebrew/etc/dnsmasq.d,*.conf
+=== 5: local HTTP tests (loopback — does not pass through the firewall)
+HTTP/1.1 200 OK
+X-Powered-By: Express
+X-Backend: A
+via LAN IP 3001 -> 200
+HTTP/1.1 200 OK
+X-Powered-By: Express
+X-Backend: B
+via LAN IP 3002 -> 200
+=== 6: local DNS tests
+dig @127.0.0.1 app.team1.test      -> 10.7.31.224
+dig @10.7.31.224 app.team1.test    -> 10.7.31.224
+=== 7: macOS Application Firewall
+Firewall is enabled. (State = 1)
+Firewall has block all state set to disabled.
+Firewall stealth mode is off
+=== 8: PF (sudo -n)
+sudo: a password is required
+sudo: a password is required
+(PF state NOT verified)
+=== 9: PF rollback file
+-rw-r--r--  1 riyayadav  staff  76 Nov 23 17:04 /Users/riyayadav/pf-rules-before-project.txt
+=== 10: outbound pings from Mac 3
+ping 10.7.0.1: sendto: No route to host (x4), 100.0% packet loss
+ping 10.7.9.246 (Mac 1): 4/4 received, avg 6.901 ms
+=== 11: processes / config locations
+nobody     37750 ... /opt/homebrew/opt/dnsmasq/sbin/dnsmasq --keep-in-foreground -C /opt/homebrew/etc/dnsmasq.conf -7 /opt/homebrew/etc/dnsmasq.d,*.conf
+riyayadav  37555 ... nginx: worker process
+riyayadav  37554 ... nginx: master process /opt/homebrew/bin/nginx -p /Users/riyayadav/cn-project/standby-nginx/ -c nginx.conf
+/opt/homebrew/etc/dnsmasq.conf
+/opt/homebrew/etc/dnsmasq.conf.original
+/opt/homebrew/etc/dnsmasq.d: dhcpc ppp
+/opt/homebrew/etc/nginx/: (default Homebrew nginx files; standby edge config lives in ~/cn-project/standby-nginx/)

@@ -1,0 +1,29 @@
+Mac 3 (Riya, 10.7.31.224) as a DNS/HTTPS client — AFTER fix (~23:32 IST 2026-11-23). Relayed by Riya's Claude session.
+Fix applied by Riya (typed her own sudo password in the Terminal panel): /etc/resolver/team1.test -> nameserver 10.7.9.246,
+nameserver 10.7.31.224 (per-domain resolver, only *.team1.test).
+
+=== Fix (terminal output)
+nameserver 10.7.9.246
+nameserver 10.7.31.224
+RESOLVER_DONE
+
+=== Verification
+resolver #8
+  domain   : team1.test
+  nameserver[0] : 10.7.9.246
+  nameserver[1] : 10.7.31.224
+  flags    : Request A records
+  reach    : 0x00020002 (Reachable,Directly Reachable Address)
+name: app.team1.test
+ip_address: 10.7.31.224
+
+*   Trying 10.7.31.224:8443...
+* Connected to app.team1.test (10.7.31.224) port 8443
+* (304) (IN), TLS handshake, CERT verify (15):
+* SSL connection using TLSv1.3 / AEAD-CHACHA20-POLY1305-SHA256 / [blank] / UNDEF
+*  SSL certificate verify ok.
+< HTTP/1.1 200 OK
+< X-Backend: A
+< ETag: "backend-a-v1"
+{"backend":"A","status":"ok"}
+(Before the fix, with --resolve, the main edge on Mac 2 also returned HTTP 200 with TLS verify OK from this Mac.)

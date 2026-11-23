@@ -1,5 +1,7 @@
 # Private Network Service Platform
 
+> Phase 1 overview (IPs updated to the current LAN). For the current state, Phase 2 results and the evidence index see the repository `README.md` and `docs/Phase2_Final_Report.md`.
+
 ## Computer Networks — Phase 1
 
 A team-based private LAN networking project demonstrating how multiple machines communicate through a private DNS service, reverse proxy/load balancer, HTTPS/TLS, backend services, HTTP caching, and network-level packet analysis using Wireshark.
@@ -21,7 +23,7 @@ The system demonstrates the complete request flow:
                     │ DNS + Client      │
                     │                   │
                     │ dnsmasq           │
-                    │ 10.7.10.246       │
+                    │ 10.7.9.246       │
                     └─────────┬─────────┘
                               │
                      app.team1.test
@@ -34,7 +36,7 @@ The system demonstrates the complete request flow:
                     │ HTTPS :8443       │
                     │ Load Balancer     │
                     │ HTTP Cache        │
-                    │ 10.7.19.2         │
+                    │ 10.7.19.93         │
                     └─────────┬─────────┘
                               │
                     ┌─────────┴─────────┐
@@ -69,9 +71,9 @@ This implementation uses a 3-machine architecture.
 
 | Machine | Role | IP Address | Services |
 |---|---|---|---|
-| Mac 1 | DNS + Client | `10.7.10.246` | dnsmasq, testing |
-| Mac 2 | Edge Server | `10.7.19.2` | nginx, HTTPS, load balancing, caching |
-| Mac 3 | Backend Server | `10.7.17.41` | Backend A + Backend B |
+| Mac 1 | DNS + Client | `10.7.9.246` | dnsmasq, testing |
+| Mac 2 | Edge Server | `10.7.19.93` | nginx, HTTPS, load balancing, caching |
+| Mac 3 | Backend Server | `10.7.31.224` | Backend A + Backend B |
 
 ### Team Responsibilities
 
@@ -118,12 +120,12 @@ Client
   │ DNS Query
   ▼
 dnsmasq
-10.7.10.246:53
+10.7.9.246:53
   │
-  │ app.team1.test → 10.7.19.2
+  │ app.team1.test → 10.7.19.93
   ▼
 nginx
-10.7.19.2:8443
+10.7.19.93:8443
   │
   │ HTTPS / Reverse Proxy
   ▼
@@ -153,7 +155,7 @@ is received by nginx and proxied to one of the backend services.
 
 #### Mac 1
 
-- **IP:** `10.7.10.246`
+- **IP:** `10.7.9.246`
 - **Role:** DNS + Client
 - **Interface:** `en0`
 - **DNS Service:** dnsmasq
@@ -161,7 +163,7 @@ is received by nginx and proxied to one of the backend services.
 
 #### Mac 2
 
-- **IP:** `10.7.19.2`
+- **IP:** `10.7.19.93`
 - **Role:** nginx / Edge Server
 - **Interface:** `en0`
 - **HTTP:** `8080`
@@ -169,7 +171,7 @@ is received by nginx and proxied to one of the backend services.
 
 #### Mac 3
 
-- **IP:** `10.7.17.41`
+- **IP:** `10.7.31.224`
 - **Role:** Backend Server
 - **Interface:** `en0`
 - **Backend A:** `3001`
@@ -192,7 +194,7 @@ app.team1.test
 resolves to:
 
 ```text
-10.7.19.2
+10.7.19.93
 ```
 
 Similarly:
@@ -204,7 +206,7 @@ api.team1.test
 resolves to:
 
 ```text
-10.7.19.2
+10.7.19.93
 ```
 
 ### dnsmasq Configuration
@@ -212,8 +214,8 @@ resolves to:
 Relevant configuration:
 
 ```conf
-address=/app.team1.test/10.7.19.2
-address=/api.team1.test/10.7.19.2
+address=/app.team1.test/10.7.19.93
+address=/api.team1.test/10.7.19.93
 
 listen-address=0.0.0.0
 interface=en0
@@ -248,13 +250,13 @@ Expected result:
 ```text
 ;; ANSWER SECTION:
 
-app.team1.test.    IN    A    10.7.19.2
+app.team1.test.    IN    A    10.7.19.93
 ```
 
 The DNS server should be the private DNS server:
 
 ```text
-SERVER: 10.7.10.246#53
+SERVER: 10.7.9.246#53
 ```
 
 ### Verify the Private Domain Is Not Public
@@ -284,7 +286,7 @@ Two backend services are running on Mac 3.
 Address:
 
 ```text
-http://10.7.17.41:3001/api/status
+http://10.7.31.224:3001/api/status
 ```
 
 Response:
@@ -309,7 +311,7 @@ ETag: "backend-a-v1"
 Address:
 
 ```text
-http://10.7.17.41:3002/api/status
+http://10.7.31.224:3002/api/status
 ```
 
 Response:
@@ -394,8 +396,8 @@ http {
                      use_temp_path=off;
 
     upstream backend_servers {
-        server 10.7.17.41:3001;
-        server 10.7.17.41:3002;
+        server 10.7.31.224:3001;
+        server 10.7.31.224:3002;
     }
 
     server {
@@ -448,8 +450,8 @@ The nginx upstream block contains both backend services:
 
 ```nginx
 upstream backend_servers {
-    server 10.7.17.41:3001;
-    server 10.7.17.41:3002;
+    server 10.7.31.224:3001;
+    server 10.7.31.224:3002;
 }
 ```
 
@@ -749,16 +751,16 @@ The capture demonstrates:
 
 ```text
 Client
-10.7.19.2
+10.7.19.93
       ↓
 DNS Server
-10.7.10.246
+10.7.9.246
 ```
 
 The DNS response contains:
 
 ```text
-app.team1.test → 10.7.19.2
+app.team1.test → 10.7.19.93
 ```
 
 This demonstrates private hostname resolution.
@@ -775,29 +777,29 @@ Observed connection:
 
 ```text
 Client:
-10.7.10.246:52285
+10.7.9.246:52285
 
 Server:
-10.7.19.2:8443
+10.7.19.93:8443
 ```
 
 Sequence:
 
 ```text
 SYN
-10.7.10.246:52285
+10.7.9.246:52285
         ↓
-10.7.19.2:8443
+10.7.19.93:8443
 
 SYN-ACK
-10.7.19.2:8443
+10.7.19.93:8443
         ↓
-10.7.10.246:52285
+10.7.9.246:52285
 
 ACK
-10.7.10.246:52285
+10.7.9.246:52285
         ↓
-10.7.19.2:8443
+10.7.19.93:8443
 ```
 
 The handshake establishes a reliable, ordered, connection-oriented TCP channel before TLS communication begins.
@@ -825,7 +827,7 @@ Client Hello
 to:
 
 ```text
-10.7.19.2:8443
+10.7.19.93:8443
 ```
 
 The server responds with its TLS handshake and certificate.
@@ -890,7 +892,7 @@ Backend A is stopped.
 Backend A:
 
 ```text
-10.7.17.41:3001
+10.7.31.224:3001
 ```
 
 is no longer available.
@@ -898,7 +900,7 @@ is no longer available.
 Backend B remains active:
 
 ```text
-10.7.17.41:3002
+10.7.31.224:3002
 ```
 
 ### After Failure
@@ -950,7 +952,7 @@ dig app.team1.test
 Expected:
 
 ```text
-10.7.19.2
+10.7.19.93
 ```
 
 ### Public DNS Isolation
@@ -968,7 +970,7 @@ NXDOMAIN
 ### Backend A
 
 ```bash
-curl http://10.7.17.41:3001/api/status
+curl http://10.7.31.224:3001/api/status
 ```
 
 Expected:
@@ -980,7 +982,7 @@ Expected:
 ### Backend B
 
 ```bash
-curl http://10.7.17.41:3002/api/status
+curl http://10.7.31.224:3002/api/status
 ```
 
 Expected:
@@ -1231,7 +1233,7 @@ https://app.team1.test:8443/api/status
 ```text
 app.team1.test
        ↓
-10.7.19.2
+10.7.19.93
 ```
 
 ```text

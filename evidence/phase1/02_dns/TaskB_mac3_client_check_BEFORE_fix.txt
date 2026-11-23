@@ -1,0 +1,26 @@
+Mac 3 (Riya, 10.7.31.224) as a DNS/HTTPS client — BEFORE fix. Read-only check by Riya's Claude session, ~23:28 IST 2026-11-23.
+Finding: no Wi-Fi DNS override, no /etc/resolver → system resolver doesn't know the team DNS → app.team1.test doesn't resolve
+(curl exit 6). TLS trust OK: Avneet's mkcert CA is trusted; with --resolve both edges return HTTP 200, TLS verify=0.
+
+--- resolver config
+There aren't any DNS Servers set on Wi-Fi.
+ls: /etc/resolver: No such file or directory
+(scutil --dns | grep team1.test: no output)
+--- system lookup (what apps/browsers use)
+(no output for app.team1.test)
+(no output for api.team1.test)
+--- direct to team DNS servers
+dig @10.7.9.246 app.team1.test +short   -> 10.7.31.224
+dig @10.7.31.224 app.team1.test +short  -> 10.7.31.224
+--- HTTPS by name, NO -k
+curl by name: exit=6 (Could not resolve host)
+via Mac 2 edge (--resolve 10.7.19.93): HTTP 200, TLS verify=0
+via Mac 3 standby edge (--resolve 10.7.31.224): HTTP 200, TLS verify=0
+--- mkcert CA in System keychain
+    "alis"<blob>="mkcert avneet@avneets-macbook-air.local (avneet singh)"
+    "labl"<blob>="mkcert avneet@Avneets-MacBook-Air.local (Avneet Singh)"
+--- public cert ~/cn-project/tls/app.team1.test.pem
+issuer=O=mkcert development CA, OU=avneet@Avneets-MacBook-Air.local (Avneet Singh), CN=mkcert avneet@Avneets-MacBook-Air.local (Avneet Singh)
+subject=O=mkcert development certificate, OU=avneet@Avneets-MacBook-Air.local (Avneet Singh)
+X509v3 Subject Alternative Name: DNS:app.team1.test
+notAfter=Jan  2 17:12:36 2029 GMT

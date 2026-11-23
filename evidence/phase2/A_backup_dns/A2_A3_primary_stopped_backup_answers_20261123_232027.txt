@@ -1,0 +1,18 @@
+Ext A backup DNS failover — 2026-11-23 23:20:27 IST — Manpreet’s MacBook Pro (10.7.9.246)
+[23:21:13] Client resolver order for team1.test:
+  nameserver[0] : 10.7.9.246
+  nameserver[1] : 10.7.31.224
+[23:21:13] BEFORE: primary -> 10.7.31.224 | backup -> 10.7.31.224
+
+[23:21:13] ===== STOP primary DNS on Mac 1 (sudo launchctl bootout system/sh.brew.dnsmasq)
+[23:21:14] primary port 53 listeners: 0 dnsmasq socket(s)
+[23:21:14] dig @10.7.9.246 (primary): ;; connection timed out; no servers could be reached
+[23:21:15] dig @10.7.31.224 (backup): 10.7.31.224
+[23:21:16] CLIENT system lookup (OS resolver tries primary, falls back to backup):
+        ip_address: 10.7.31.224   (took 3.2s)
+[23:21:19] CLIENT HTTPS by name while primary DNS is DOWN:
+        HTTP 200, connected to 10.7.31.224:8443, TLS verify=0, DNS lookup 0.005016s
+
+[23:21:19] ===== RESTORE primary DNS (sudo launchctl bootstrap system /Library/LaunchDaemons/sh.brew.dnsmasq.plist)
+[23:21:20] AFTER: primary -> 10.7.31.224 | backup -> 10.7.31.224
+DONE

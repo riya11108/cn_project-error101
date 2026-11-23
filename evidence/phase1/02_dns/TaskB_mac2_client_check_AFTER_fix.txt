@@ -1,0 +1,25 @@
+Mac 2 (Avneet, 10.7.19.93) as a DNS/HTTPS client — AFTER fix (~23:31 IST 2026-11-23). Relayed by Avneet's Claude session.
+Fix applied by Avneet (typed his own sudo password): /etc/resolver/team1.test -> nameserver 10.7.9.246, nameserver 10.7.31.224
+(per-domain resolver, only *.team1.test). Optional removal of the stale Wi-Fi DNS 10.7.10.246 was NOT applied (Avneet's choice).
+
+resolver #8
+  domain   : team1.test
+  nameserver[0] : 10.7.9.246
+  nameserver[1] : 10.7.31.224
+  flags    : Request A records
+  reach    : 0x00020002 (Reachable,Directly Reachable Address)
+name: app.team1.test
+ip_address: 10.7.31.224
+
+*   Trying 10.7.31.224:8443...
+* Connected to app.team1.test (10.7.31.224) port 8443
+* (304) (IN), TLS handshake, CERT verify (15):
+* SSL connection using TLSv1.3 / AEAD-CHACHA20-POLY1305-SHA256 / [blank] / UNDEF
+*  SSL certificate verify ok.
+< HTTP/1.1 200 OK
+< X-Backend: B
+< ETag: "backend-b-v1"
+{"backend":"B","status":"ok"}
+--- Wi-Fi DNS (unchanged)
+10.7.10.246
+8.8.8.8

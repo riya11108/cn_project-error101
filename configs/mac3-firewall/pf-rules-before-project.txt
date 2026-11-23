@@ -1,0 +1,4 @@
+# Mac 3 ~/pf-rules-before-project.txt — PF baseline saved before Ext C (= macOS defaults).
+# Identical to `pfctl -sr` on 2026-11-23 → PF restored to baseline after the Ext C demo.
+scrub-anchor "com.apple/*" all fragment reassemble
+anchor "com.apple/*" all

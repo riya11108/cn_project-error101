@@ -1,0 +1,19 @@
+Nov 23 22:53:58 dnsmasq[3843]: started, version 2.93 cachesize 150
+Nov 23 22:53:58 dnsmasq[3843]: compile time options: IPv6 GNU-getopt no-DBus no-UBus no-i18n no-IDN DHCP DHCPv6 no-Lua TFTP no-conntrack no-ipset no-nftset auth no-DNSSEC loop-detect no-inotify dumpfile
+Nov 23 22:53:58 dnsmasq[3843]: warning: failed to change owner of /Users/manpreetsingh/Documents/CN_Project/cn_project-error101/CN_Project_Evidence/06_Phase2/Extension_B_DNS_TTL/B_client_cache_queries_20261123_225352.log: Operation not permitted
+Nov 23 22:53:58 dnsmasq[3843]: using nameserver 10.7.9.246#53 for domain team1.test 
+Nov 23 22:53:58 dnsmasq[3843]: cleared cache
+Nov 23 22:53:59 dnsmasq[3843]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:53:59 dnsmasq[3843]: forwarded ttl.team1.test to 10.7.9.246
+Nov 23 22:53:59 dnsmasq[3843]: reply ttl.team1.test is NXDOMAIN
+Nov 23 22:54:03 dnsmasq[3843]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:54:03 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+Nov 23 22:54:07 dnsmasq[3843]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:54:07 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+Nov 23 22:54:07 dnsmasq[3843]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:54:07 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+Nov 23 22:54:12 dnsmasq[3843]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:54:12 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+Nov 23 22:54:16 dnsmasq[3843]: query[A] ttl.team1.test from 127.0.0.1
+Nov 23 22:54:16 dnsmasq[3843]: cached ttl.team1.test is NXDOMAIN
+Nov 23 22:54:17 dnsmasq[3843]: exiting on receipt of SIGTERM
